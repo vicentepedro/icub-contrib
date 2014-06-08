@@ -15,6 +15,18 @@
  * Public License for more details
 */
 
+/**
+\defgroup icub_funnyPostures funnyPostures
+
+A simple module that makes use of the cartesian interface
+to put the iCub in ... funny postures upon tactile detection.
+
+\section tested_os_sec Tested OS
+Windows, Linux
+
+\author Ugo Pattacini
+*/
+
 #include <stdio.h>
 #include <sstream>
 #include <string>

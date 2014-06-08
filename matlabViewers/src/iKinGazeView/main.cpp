@@ -17,7 +17,7 @@
 */
 
 /** 
-\defgroup iKinGazeView iKinGazeView
+\defgroup icub_iKinGazeView iKinGazeView
  
 @ingroup icub_matlabViewers 
  

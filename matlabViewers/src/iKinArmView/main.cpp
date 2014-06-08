@@ -17,7 +17,7 @@
 */
 
 /** 
-\defgroup iKinArmView iKinArmView
+\defgroup icub_iKinArmView iKinArmView
  
 @ingroup icub_matlabViewers 
  

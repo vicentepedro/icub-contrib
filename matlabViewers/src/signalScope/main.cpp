@@ -17,8 +17,11 @@
 */
 
 /** 
-\defgroup signalScope signalScope
- 
+\defgroup icub_matlabViewers MATLAB Viewers
+
+These MATLAB viewers display some useful information such as gaze or arm configuration and can plot signals.
+
+\defgroup icub_signalScope signalScope
 @ingroup icub_matlabViewers
  
 A MATLAB scope which displays signal acquired form a YARP port 
