@@ -149,10 +149,7 @@ protected:
 
 public:
     /************************************************************************/
-    TrackerModule()
-    {
-        tracker=new tld::TLD;
-    }
+    TrackerModule() : tracker(new tld::TLD) { }
 
     /************************************************************************/
     bool configure(ResourceFinder &rf)
