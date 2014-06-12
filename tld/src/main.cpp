@@ -137,7 +137,7 @@ protected:
     TLD tld;
 
     ResourceFinder *rf;
-    Mutex mutex;
+    yarp::os::Mutex mutex;
     Rect boundingBox;
 
     bool initDetectorCascade;
