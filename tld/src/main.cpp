@@ -394,14 +394,17 @@ public:
         {
             ImageOf<PixelMono> imgMono;
             imgMono.resize(img->width(),img->height());
-            cv::Mat imgMonoMat((IplImage*)imgMono.getIplImage());
 
-            tracker->detectorCascade->imgWidth=imgMono.width();
-            tracker->detectorCascade->imgHeight=imgMono.height();
-            tracker->detectorCascade->imgWidthStep=((IplImage*)imgMono.getIplImage())->widthStep;
+            cv::Mat imgMonoMat((IplImage*)imgMono.getIplImage());
+            cv::cvtColor(imgMat,imgMonoMat,CV_BGR2GRAY);
+
+            tracker->detectorCascade->imgWidth=imgMonoMat.cols;
+            tracker->detectorCascade->imgHeight=imgMonoMat.rows;
+            tracker->detectorCascade->imgWidthStep=imgMonoMat.step;
             initDetectorCascade=false;
         }
 
+        bool skipProcessingOnce=false;
         if (loadBoundingBox)
         {
             ImageOf<PixelMono> imgMono;
@@ -411,10 +414,11 @@ public:
             cv::cvtColor(imgMat,imgMonoMat,CV_BGR2GRAY);
 
             tracker->selectObject(imgMonoMat,&boundingBox);
+            skipProcessingOnce=true;
             loadBoundingBox=false;
         }
 
-        if (doTLD)
+        if (doTLD && !skipProcessingOnce)
         {
             tracker->processImage(imgMat);
             if (tracker->currBB!=NULL)
