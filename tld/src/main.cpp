@@ -117,15 +117,13 @@ Linux, Windows
 #include <stdio.h>
 #include <string>
 
-#include <opencv2/opencv.hpp>
+#include <cv.h>
 #include <TLD.h>
 
 #include <yarp/os/all.h>
 #include <yarp/sig/all.h>
 
 using namespace std;
-using namespace cv;
-using namespace tld;
 using namespace yarp::os;
 using namespace yarp::sig;
 
@@ -134,23 +132,28 @@ using namespace yarp::sig;
 class TrackerModule: public RFModule
 {
 protected:
-    TLD tld;
+    tld::TLD *tracker;
 
     ResourceFinder *rf;
-    yarp::os::Mutex mutex;
-    Rect boundingBox;
+    Mutex mutex;
+    cv::Rect boundingBox;
 
     bool initDetectorCascade;
     bool loadBoundingBox;
-    bool firstInitTLD;    
     bool doTLD;
 
     BufferedPort<ImageOf<PixelBgr> > imgInPort;
     Port                             imgOutPort;
     Port                             dataOutPort;
-    RpcServer                        rpcPort;    
+    RpcServer                        rpcPort;
 
 public:
+    /************************************************************************/
+    TrackerModule()
+    {
+        tracker=new TLD;
+    }
+
     /************************************************************************/
     bool configure(ResourceFinder &rf)
     {
@@ -159,12 +162,9 @@ public:
         if (rf.check("model"))
         {            
             string model=rf.findFile("model").c_str();
-            tld.readFromFile(model.c_str());
+            tracker->readFromFile(model.c_str());
             printf("%s loaded\n",model.c_str());
-            firstInitTLD=true;
         }
-        else
-            firstInitTLD=false;
 
         loadBoundingBox=doTLD=false;
         initDetectorCascade=true;
@@ -199,8 +199,7 @@ public:
                         {
                             mutex.lock();
                             string model=rf->findFileByName(command.get(1).asString()).c_str();
-                            tld.readFromFile(model.c_str());
-                            firstInitTLD=true;
+                            tracker->readFromFile(model.c_str());
                             mutex.unlock();
 
                             reply.addVocab(ack);
@@ -236,7 +235,7 @@ public:
                         string model=rf->getHomeContextPath().c_str();
                         model+="/";
                         model+=command.get(1).asString().c_str();
-                        tld.writeToFile(model.c_str());
+                        tracker->writeToFile(model.c_str());
                         mutex.unlock();
 
                         reply.addVocab(ack);
@@ -251,21 +250,21 @@ public:
                 //-----------------
                 case VOCAB4('s','t','a','r'):
                 {
-                    if (firstInitTLD)
-                    {
-                        doTLD=true;
-                        reply.addVocab(ack);
-                    }
-                    else
-                        reply.addVocab(nack);
+                    mutex.lock();
+                    doTLD=true;
+                    mutex.unlock();
 
+                    reply.addVocab(ack);
                     return true;
                 }
 
                 //-----------------
                 case VOCAB4('s','t','o','p'):
                 {
+                    mutex.lock();
                     doTLD=false;
+                    mutex.unlock();
+
                     reply.addVocab(ack);
                     return true;
                 }
@@ -274,7 +273,7 @@ public:
                 case VOCAB4('c','l','e','a'):
                 {
                     mutex.lock();
-                    tld.release();
+                    tracker->release();
                     mutex.unlock();
 
                     reply.addVocab(ack);
@@ -296,7 +295,7 @@ public:
                                 if ((mode==on) || (mode==off))
                                 {
                                     mutex.lock();
-                                    tld.learningEnabled=(mode==on);
+                                    tracker->learningEnabled=(mode==on);
                                     mutex.unlock();
                                     reply.addVocab(ack);
                                 }
@@ -312,7 +311,7 @@ public:
                                 if ((mode==on) || (mode==off))
                                 {
                                     mutex.lock();
-                                    tld.alternating=(mode==on);
+                                    tracker->alternating=(mode==on);
                                     mutex.unlock();
                                     reply.addVocab(ack);
                                 }
@@ -345,7 +344,7 @@ public:
                             case VOCAB4('l','e','a','r'):
                             {
                                 reply.addVocab(ack);
-                                reply.addVocab(tld.learningEnabled?on:off);
+                                reply.addVocab(tracker->learningEnabled?on:off);
                                 break;
                             }
 
@@ -353,14 +352,14 @@ public:
                             case VOCAB4('a','l','t','e'):
                             {
                                 reply.addVocab(ack);
-                                reply.addVocab(tld.alternating?on:off);
+                                reply.addVocab(tracker->alternating?on:off);
                                 break;
                             }
 
                             //-----------------
                             default:
                                 reply.addVocab(nack);
-                            }
+                        }
                     }
                     else
                         reply.addVocab(nack);
@@ -381,7 +380,7 @@ public:
     /************************************************************************/
     double getPeriod()
     {
-        return 0.01;
+        return 0.0;
     }
 
     /************************************************************************/
@@ -393,40 +392,41 @@ public:
 
         mutex.lock();
 
+        cv::Mat imgMat((IplImage*)img->getIplImage());
         if (initDetectorCascade)
         {
             ImageOf<PixelMono> imgMono;
             imgMono.resize(img->width(),img->height());
-            tld.detectorCascade->imgWidth=imgMono.width();
-            tld.detectorCascade->imgHeight=imgMono.height();
-            tld.detectorCascade->imgWidthStep=((IplImage*)imgMono.getIplImage())->widthStep;
+            cv::Mat imgMonoMat((IplImage*)imgMono.getIplImage());
+
+            tracker->detectorCascade->imgWidth=imgMono.width();
+            tracker->detectorCascade->imgHeight=imgMono.height();
+            tracker->detectorCascade->imgWidthStep=((IplImage*)imgMono.getIplImage())->widthStep;
             initDetectorCascade=false;
         }
 
-        bool skipProcessing=false;
         if (loadBoundingBox)
         {
             ImageOf<PixelMono> imgMono;
             imgMono.resize(img->width(),img->height());
-            cvCvtColor(img->getIplImage(),imgMono.getIplImage(),CV_BGR2GRAY);
+            
+            cv::Mat imgMonoMat((IplImage*)imgMono.getIplImage());
+            cv::cvtColor(imgMat,imgMonoMat,CV_BGR2GRAY);
 
-            tld.selectObject((IplImage*)imgMono.getIplImage(),&boundingBox);
+            tracker->selectObject(imgMonoMat,&boundingBox);
             loadBoundingBox=false;
-            skipProcessing=true;
-            firstInitTLD=true;
         }
 
-        if (doTLD && !skipProcessing)
+        if (doTLD)
         {
-            tld.processImage((IplImage*)img->getIplImage());
-
-            if (tld.currBB!=NULL)
+            tracker->processImage(imgMat);
+            if (tracker->currBB!=NULL)
             {
-                CvPoint tl,br;
-                tl.x=tld.currBB->x;
-                tl.y=tld.currBB->y;
-                br.x=tl.x+tld.currBB->width;
-                br.y=tl.y+tld.currBB->height;
+                cv::Point tl,br;
+                tl.x=tracker->currBB->x;
+                tl.y=tracker->currBB->y;
+                br.x=tl.x+tracker->currBB->width;
+                br.y=tl.y+tracker->currBB->height;
 
                 if (dataOutPort.getOutputCount()>0)
                 {
@@ -435,13 +435,14 @@ public:
                     data.addInt(tl.y);
                     data.addInt(br.x);
                     data.addInt(br.y);
-                    data.addDouble(tld.currConf);
+                    data.addDouble(tracker->currConf);
                     dataOutPort.write(data);
                 }
 
                 if (imgOutPort.getOutputCount()>0)
                 {
-                    cvRectangle(img->getIplImage(),tl,br,(tld.currConf>=0.5)?cvScalar(255,0,0):cvScalar(0,255,255),2);
+                    cv::rectangle(imgMat,tl,br,(tracker->currConf>=0.5)?
+                                  cv::Scalar(255,0,0):cv::Scalar(0,255,255),2);
                     imgOutPort.write(*img);
                 }
             }
@@ -472,6 +473,12 @@ public:
         rpcPort.close();
 
         return true;
+    }
+
+    /************************************************************************/
+    ~TrackerModule()
+    {
+        delete tracker;
     }
 };
 
