@@ -5,7 +5,7 @@
         </dependencies>
       
         <module>
-                <name>tld</name>
+                <name>cmt</name>
                 <node>node1</node>
                 <tag>tracker</tag>
         </module>
@@ -40,12 +40,12 @@
 
         <connection>
                 <from>/icub/camcalib/left/out</from>
-                <to>/tld/img:i</to>
+                <to>/cmt/img:i</to>
                 <protocol>tcp</protocol>
         </connection>
 
         <connection>
-                <from>/tld/img:o</from>
+                <from>/cmt/img:o</from>
                 <to>/viewer2</to>
                 <protocol>udp</protocol>
         </connection>
