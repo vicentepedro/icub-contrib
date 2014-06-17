@@ -92,7 +92,7 @@ void track(cv::Mat im_prev, cv::Mat im_gray, const std::vector<std::pair<cv::Key
 
         //Set status depending on fb_err and lk error
         for(size_t i = 0; i < status.size(); i++)
-            status[i] = fb_err[i] <= THR_FB & status[i];
+            status[i] = (fb_err[i] <= THR_FB) & status[i];
 
         keypointsTracked = std::vector<std::pair<cv::KeyPoint, int> >();
         for(size_t i = 0; i < pts.size(); i++)
@@ -327,7 +327,7 @@ std::vector<Cluster> linkage(const std::vector<cv::Point2f>& list)
         cluster.first = x;
         cluster.second = y;
         cluster.dist = min;
-        cluster.num = (x < list.size() ? 1 : clusters[x-list.size()].num) + (y < list.size() ? 1 : clusters[y-list.size()].num);
+        cluster.num = (x < (int)list.size() ? 1 : clusters[x-list.size()].num) + (y < (int)list.size() ? 1 : clusters[y-list.size()].num);
         used[x] = true;
         used[y] = true;
         int limit = list.size()+clusters.size();
@@ -453,7 +453,7 @@ void CMT::estimate(const std::vector<std::pair<cv::KeyPoint, int> >& keypointsIN
                 float angleDiff = angle - origAngle;
                 //Fix long way angles
                 if(fabs(angleDiff) > CV_PI)
-                    angleDiff -= sign(angleDiff) * 2 * CV_PI;
+                    angleDiff -= sign(angleDiff) * 2.0F * (float)CV_PI;
                 angleDiffs.push_back(angleDiff);
             }
             scaleEstimate = median(scaleChange);
@@ -469,7 +469,7 @@ void CMT::estimate(const std::vector<std::pair<cv::KeyPoint, int> >& keypointsIN
             std::vector<Cluster> linkageData = linkage(votes);
 
             //Perform hierarchical distance-based clustering
-            std::vector<int> T = fcluster(linkageData, thrOutlier);
+            std::vector<int> T = fcluster(linkageData, (float)thrOutlier);
             //Count votes for each cluster
             std::vector<int> cnt = binCount(T);
             //Get largest class
@@ -517,7 +517,7 @@ std::vector<bool> in1d(const std::vector<int>& a, const std::vector<int>& b)
     return result;
 }
 
-void CMT::processFrame(cv::Mat im_gray)
+bool CMT::processFrame(cv::Mat im_gray)
 {
     trackedKeypoints = std::vector<std::pair<cv::KeyPoint, int> >();
     std::vector<unsigned char> status;
@@ -551,15 +551,15 @@ void CMT::processFrame(cv::Mat im_gray)
 
         //Convert distances to confidences, do not weight
         std::vector<float> combined;
-        for(size_t i = 0; i < matches.size(); i++)
-            combined.push_back(1 - matches[i].distance / descriptorLength);
+        for(size_t j = 0; j < matches.size(); j++)
+            combined.push_back(1 - matches[j].distance / descriptorLength);
 
         std::vector<int>& classes = classesDatabase;
 
         //Sort in descending order
         std::vector<PairFloat> sorted_conf;
-        for(size_t i = 0; i < combined.size(); i++)
-            sorted_conf.push_back(std::make_pair(combined[i], i));
+        for(size_t j = 0; j < combined.size(); j++)
+            sorted_conf.push_back(std::make_pair(combined[j], j));
         std::sort(&sorted_conf[0], &sorted_conf[0]+sorted_conf.size(), comparatorPairDesc<float>);
 
         //Get best and second best index
@@ -586,31 +586,31 @@ void CMT::processFrame(cv::Mat im_gray)
 
             //Convert distances to confidences
             std::vector<float> confidences;
-            for(size_t i = 0; i < matches.size(); i++)
-                confidences.push_back(1 - matches[i].distance / descriptorLength);
+            for(size_t j = 0; j < matches.size(); j++)
+                confidences.push_back(1 - matches[j].distance / descriptorLength);
 
             //Compute the keypoint location relative to the object center
             cv::Point2f relative_location = keypoint.pt - center;
 
             //Compute the distances to all springs
             std::vector<float> displacements;
-            for(size_t i = 0; i < springs.size(); i++)
+            for(size_t j = 0; j < springs.size(); j++)
             {
-                cv::Point2f p = (scaleEstimate * rotate(springs[i], -rotationEstimate) - relative_location);
+                cv::Point2f p = (scaleEstimate * rotate(springs[j], -rotationEstimate) - relative_location);
                 displacements.push_back(sqrt(p.dot(p)));
             }
 
             //For each spring, calculate weight
             std::vector<float> combined;
-            for(size_t i = 0; i < confidences.size(); i++)
-                combined.push_back((displacements[i] < thrOutlier)*confidences[i]);
+            for(size_t j = 0; j < confidences.size(); j++)
+                combined.push_back((displacements[j] < thrOutlier)*confidences[j]);
 
             std::vector<int>& classes = selectedClasses;
 
             //Sort in descending order
             std::vector<PairFloat> sorted_conf;
-            for(size_t i = 0; i < combined.size(); i++)
-                sorted_conf.push_back(std::make_pair(combined[i], i));
+            for(size_t j = 0; j < combined.size(); j++)
+                sorted_conf.push_back(std::make_pair(combined[j], j));
             std::sort(&sorted_conf[0], &sorted_conf[0]+sorted_conf.size(), comparatorPairDesc<float>);
 
             //Get best and second best index
@@ -626,9 +626,9 @@ void CMT::processFrame(cv::Mat im_gray)
             //If distance ratio is ok and absolute distance is ok and keypoint class is not background
             if(ratio < thrRatio && combined[bestInd] > thrConf && keypoint_class != 0)
             {
-                for(int i = activeKeypoints.size()-1; i >= 0; i--)
-                    if(activeKeypoints[i].second == keypoint_class)
-                        activeKeypoints.erase(activeKeypoints.begin()+i);
+                for(int j = activeKeypoints.size()-1; j >= 0; j--)
+                    if(activeKeypoints[j].second == keypoint_class)
+                        activeKeypoints.erase(activeKeypoints.begin()+j);
                 activeKeypoints.push_back(std::make_pair(keypoint, keypoint_class));
             }
         }
@@ -665,11 +665,8 @@ void CMT::processFrame(cv::Mat im_gray)
     bottomRight = cv::Point2f(NAN,NAN);
 
     boundingbox = cv::Rect_<float>(NAN,NAN,NAN,NAN);
-    hasResult = false;
-    if(!(isnan(center.x) | isnan(center.y)) && (activeKeypoints.size() > nbInitialKeypoints / 10))
+    if(!(isnan(center.x) | isnan(center.y)) && ((int)activeKeypoints.size() > nbInitialKeypoints / 10))
     {
-        hasResult = true;
-
         topLeft = center + scaleEstimate*rotate(centerToTopLeft, rotationEstimate);
         topRight = center + scaleEstimate*rotate(centerToTopRight, rotationEstimate);
         bottomLeft = center + scaleEstimate*rotate(centerToBottomLeft, rotationEstimate);
@@ -681,7 +678,10 @@ void CMT::processFrame(cv::Mat im_gray)
         float maxy = std::max(std::max(topLeft.y,topRight.y),std::max(bottomRight.y, bottomLeft.y));
 
         boundingbox = cv::Rect_<float>(minx, miny, maxx-minx, maxy-miny);
+        return true;
     }
+    else
+        return false;
 }
 
 

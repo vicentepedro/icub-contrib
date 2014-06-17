@@ -141,10 +141,10 @@ public:
                     if (command.size()>=5)
                     {
                         mutex.lock();
-                        tl.x=command.get(1).asInt();
-                        tl.y=command.get(2).asInt();
-                        br.x=command.get(3).asInt();
-                        br.y=command.get(4).asInt();
+                        tl.x=(float)command.get(1).asInt();
+                        tl.y=(float)command.get(2).asInt();
+                        br.x=(float)command.get(3).asInt();
+                        br.y=(float)command.get(4).asInt();
                         initBoundingBox=true;
                         mutex.unlock();
 
@@ -218,33 +218,36 @@ public:
 
         if (doCMT)
         {
-            tracker->processFrame(imgMonoMat);
-            if (dataOutPort.getOutputCount()>0)
+            if (tracker->processFrame(imgMonoMat))
             {
-                Bottle data;                    
-                data.addInt(tracker->topLeft.x);
-                data.addInt(tracker->topLeft.y);
-                data.addInt(tracker->topRight.x);
-                data.addInt(tracker->topRight.y);
-                data.addInt(tracker->bottomRight.x);
-                data.addInt(tracker->bottomRight.y);
-                data.addInt(tracker->bottomLeft.x);
-                data.addInt(tracker->bottomLeft.y);
-                dataOutPort.write(data);
-            }
+                if (dataOutPort.getOutputCount()>0)
+                {
+                    Bottle data;                    
+                    data.addInt((int)tracker->topLeft.x);
+                    data.addInt((int)tracker->topLeft.y);
+                    data.addInt((int)tracker->topRight.x);
+                    data.addInt((int)tracker->topRight.y);
+                    data.addInt((int)tracker->bottomRight.x);
+                    data.addInt((int)tracker->bottomRight.y);
+                    data.addInt((int)tracker->bottomLeft.x);
+                    data.addInt((int)tracker->bottomLeft.y);
+                    dataOutPort.write(data);
+                }
 
-            if (imgOutPort.getOutputCount()>0)
-            {
-                cv::line(imgMat,tracker->topLeft,tracker->topRight,cv::Scalar(255,0,0));
-                cv::line(imgMat,tracker->topRight,tracker->bottomRight,cv::Scalar(255,0,0));
-                cv::line(imgMat,tracker->bottomRight,tracker->bottomLeft,cv::Scalar(255,0,0));
-                cv::line(imgMat,tracker->bottomLeft,tracker->topLeft,cv::Scalar(255,0,0));
-                imgOutPort.write(*img);
-            }
+                if (imgOutPort.getOutputCount()>0)
+                {
+                    cv::line(imgMat,tracker->topLeft,tracker->topRight,cv::Scalar(255,0,0));
+                    cv::line(imgMat,tracker->topRight,tracker->bottomRight,cv::Scalar(255,0,0));
+                    cv::line(imgMat,tracker->bottomRight,tracker->bottomLeft,cv::Scalar(255,0,0));
+                    cv::line(imgMat,tracker->bottomLeft,tracker->topLeft,cv::Scalar(255,0,0));                    
+                }
+            }            
         }
 
-        mutex.unlock();
+        if (imgOutPort.getOutputCount()>0)
+            imgOutPort.write(*img);
 
+        mutex.unlock();
         return true;
     }
 

@@ -387,17 +387,17 @@ public:
         if (img==NULL)
             return true;
 
-        mutex.lock();
+        mutex.lock();      
+
+        ImageOf<PixelMono> imgMono;
+        imgMono.resize(img->width(),img->height());
 
         cv::Mat imgMat((IplImage*)img->getIplImage());
+        cv::Mat imgMonoMat((IplImage*)imgMono.getIplImage());
+        cv::cvtColor(imgMat,imgMonoMat,CV_BGR2GRAY);
+
         if (initDetectorCascade)
         {
-            ImageOf<PixelMono> imgMono;
-            imgMono.resize(img->width(),img->height());
-
-            cv::Mat imgMonoMat((IplImage*)imgMono.getIplImage());
-            cv::cvtColor(imgMat,imgMonoMat,CV_BGR2GRAY);
-
             tracker->detectorCascade->imgWidth=imgMonoMat.cols;
             tracker->detectorCascade->imgHeight=imgMonoMat.rows;
             tracker->detectorCascade->imgWidthStep=imgMonoMat.step;
@@ -407,12 +407,6 @@ public:
         bool skipProcessingOnce=false;
         if (loadBoundingBox)
         {
-            ImageOf<PixelMono> imgMono;
-            imgMono.resize(img->width(),img->height());
-            
-            cv::Mat imgMonoMat((IplImage*)imgMono.getIplImage());
-            cv::cvtColor(imgMat,imgMonoMat,CV_BGR2GRAY);
-
             tracker->selectObject(imgMonoMat,&boundingBox);
             skipProcessingOnce=true;
             loadBoundingBox=false;
@@ -420,7 +414,7 @@ public:
 
         if (doTLD && !skipProcessingOnce)
         {
-            tracker->processImage(imgMat);
+            tracker->processImage(imgMonoMat);
             if (tracker->currBB!=NULL)
             {
                 cv::Point tl,br;
@@ -441,16 +435,14 @@ public:
                 }
 
                 if (imgOutPort.getOutputCount()>0)
-                {
-                    cv::rectangle(imgMat,tl,br,(tracker->currConf>=0.5)?
-                                  cv::Scalar(255,0,0):cv::Scalar(0,255,255),2);
-                    imgOutPort.write(*img);
-                }
+                    cv::rectangle(imgMat,tl,br,(tracker->currConf>=0.5)?cv::Scalar(255,0,0):cv::Scalar(0,255,255),2);
             }
         }
 
-        mutex.unlock();
+        if (imgOutPort.getOutputCount()>0)
+            imgOutPort.write(*img);
 
+        mutex.unlock();
         return true;
     }
 
