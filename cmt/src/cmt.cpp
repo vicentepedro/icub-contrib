@@ -34,26 +34,23 @@
 #include <cmath>
 
 #if __cplusplus < 201103L //test if c++11
-
     #include <limits>
 
     #ifndef NAN
-    //may not be correct on all compilator, DON'T USE the flag FFAST-MATH
-
+        //may not be correct on all compilator, DON'T USE the flag FFAST-MATH
         #define NAN std::numeric_limits<float>::quiet_NaN()
 
-        template <T>
-        bool is_nan(T d)
+        template <class T>
+        bool isnan(T d)
         {
-          return d != d;
+            return d != d;
         }
     #endif
-
 #endif
 
 void inout_rect(const std::vector<cv::KeyPoint>& keypoints, cv::Point2f topleft, cv::Point2f bottomright, std::vector<cv::KeyPoint>& in, std::vector<cv::KeyPoint>& out)
 {
-    for(int i = 0; i < keypoints.size(); i++)
+    for(size_t i = 0; i < keypoints.size(); i++)
     {
         if(keypoints[i].pt.x > topleft.x && keypoints[i].pt.y > topleft.y && keypoints[i].pt.x < bottomright.x && keypoints[i].pt.y < bottomright.y)
             in.push_back(keypoints[i]);
@@ -78,7 +75,7 @@ void track(cv::Mat im_prev, cv::Mat im_gray, const std::vector<std::pair<cv::Key
         std::vector<float> err;
         std::vector<float> err_back;
         std::vector<float> fb_err;
-        for(int i = 0; i < keypointsIN.size(); i++)
+        for(size_t i = 0; i < keypointsIN.size(); i++)
             pts.push_back(cv::Point2f(keypointsIN[i].first.pt.x,keypointsIN[i].first.pt.y));
 
         //Calculate forward optical flow for prev_location
@@ -87,18 +84,18 @@ void track(cv::Mat im_prev, cv::Mat im_gray, const std::vector<std::pair<cv::Key
         cv::calcOpticalFlowPyrLK(im_gray, im_prev, nextPts, pts_back, status_back, err_back);
 
         //Calculate forward-backward error
-        for(int i = 0; i < pts.size(); i++)
+        for(size_t i = 0; i < pts.size(); i++)
         {
             cv::Point2f v = pts_back[i]-pts[i];
             fb_err.push_back(sqrt(v.dot(v)));
         }
 
         //Set status depending on fb_err and lk error
-        for(int i = 0; i < status.size(); i++)
+        for(size_t i = 0; i < status.size(); i++)
             status[i] = fb_err[i] <= THR_FB & status[i];
 
         keypointsTracked = std::vector<std::pair<cv::KeyPoint, int> >();
-        for(int i = 0; i < pts.size(); i++)
+        for(size_t i = 0; i < pts.size(); i++)
         {
             std::pair<cv::KeyPoint, int> p = keypointsIN[i];
             if(status[i])
@@ -124,8 +121,8 @@ CMT::CMT()
     descriptorType = "Feature2D.BRISK";
     matcherType = "BruteForce-Hamming";
     thrOutlier = 20;
-    thrConf = 0.75;
-    thrRatio = 0.8;
+    thrConf = 0.75F;
+    thrRatio = 0.8F;
     descriptorLength = 512;
     estimateScale = true;
     estimateRotation = true;
@@ -164,10 +161,10 @@ void CMT::initialise(cv::Mat im_gray0, cv::Point2f topleft, cv::Point2f bottomri
 
     //Assign each keypoint a class starting from 1, background is 0
     selectedClasses = std::vector<int>();
-    for(int i = 1; i <= selected_keypoints.size(); i++)
+    for(size_t i = 1; i <= selected_keypoints.size(); i++)
         selectedClasses.push_back(i);
     std::vector<int> backgroundClasses;
-    for(int i = 0; i < background_keypoints.size(); i++)
+    for(size_t i = 0; i < background_keypoints.size(); i++)
         backgroundClasses.push_back(0);
 
     //Stack background features and selected features into database
@@ -179,19 +176,19 @@ void CMT::initialise(cv::Mat im_gray0, cv::Point2f topleft, cv::Point2f bottomri
 
     //Same for classes
     classesDatabase = std::vector<int>();
-    for(int i = 0; i < backgroundClasses.size(); i++)
+    for(size_t i = 0; i < backgroundClasses.size(); i++)
         classesDatabase.push_back(backgroundClasses[i]);
-    for(int i = 0; i < selectedClasses.size(); i++)
+    for(size_t i = 0; i < selectedClasses.size(); i++)
         classesDatabase.push_back(selectedClasses[i]);
 
     //Get all distances between selected keypoints in squareform and get all angles between selected keypoints
     squareForm = std::vector<std::vector<float> >();
     angles = std::vector<std::vector<float> >();
-    for(int i = 0; i < selected_keypoints.size(); i++)
+    for(size_t i = 0; i < selected_keypoints.size(); i++)
     {
         std::vector<float> lineSquare;
         std::vector<float> lineAngle;
-        for(int j = 0; j < selected_keypoints.size(); j++)
+        for(size_t j = 0; j < selected_keypoints.size(); j++)
         {
             float dx = selected_keypoints[j].pt.x-selected_keypoints[i].pt.x;
             float dy = selected_keypoints[j].pt.y-selected_keypoints[i].pt.y;
@@ -204,7 +201,7 @@ void CMT::initialise(cv::Mat im_gray0, cv::Point2f topleft, cv::Point2f bottomri
 
     //Find the center of selected keypoints
     cv::Point2f center(0,0);
-    for(int i = 0; i < selected_keypoints.size(); i++)
+    for(size_t i = 0; i < selected_keypoints.size(); i++)
         center += selected_keypoints[i].pt;
     center *= (1.0/selected_keypoints.size());
 
@@ -216,7 +213,7 @@ void CMT::initialise(cv::Mat im_gray0, cv::Point2f topleft, cv::Point2f bottomri
 
     //Calculate springs of each keypoint
     springs = std::vector<cv::Point2f>();
-    for(int i = 0; i < selected_keypoints.size(); i++)
+    for(size_t i = 0; i < selected_keypoints.size(); i++)
         springs.push_back(selected_keypoints[i].pt - center);
 
     //Set start image for tracking
@@ -224,7 +221,7 @@ void CMT::initialise(cv::Mat im_gray0, cv::Point2f topleft, cv::Point2f bottomri
 
     //Make keypoints 'active' keypoints
     activeKeypoints = std::vector<std::pair<cv::KeyPoint,int> >();
-    for(int i = 0; i < selected_keypoints.size(); i++)
+    for(size_t i = 0; i < selected_keypoints.size(); i++)
         activeKeypoints.push_back(std::make_pair(selected_keypoints[i], selectedClasses[i]));
 
     //Remember number of initial keypoints
@@ -294,13 +291,13 @@ std::vector<Cluster> linkage(const std::vector<cv::Point2f>& list)
 {
     float inf = 10000000;0;
     std::vector<bool> used;
-    for(int i = 0; i < 2*list.size(); i++)
+    for(size_t i = 0; i < 2*list.size(); i++)
         used.push_back(false);
     std::vector<std::vector<float> > dist;
-    for(int i = 0; i < list.size(); i++)
+    for(size_t i = 0; i < list.size(); i++)
     {
         std::vector<float> line;
-        for(int j = 0; j < list.size(); j++)
+        for(size_t j = 0; j < list.size(); j++)
         {
             if(i == j)
                 line.push_back(inf);
@@ -310,14 +307,14 @@ std::vector<Cluster> linkage(const std::vector<cv::Point2f>& list)
                 line.push_back(sqrt(p.dot(p)));
             }
         }
-        for(int j = 0; j < list.size(); j++)
+        for(size_t j = 0; j < list.size(); j++)
             line.push_back(inf);
         dist.push_back(line);
     }
-    for(int i = 0; i < list.size(); i++)
+    for(size_t i = 0; i < list.size(); i++)
     {
         std::vector<float> line;
-        for(int j = 0; j < 2*list.size(); j++)
+        for(size_t j = 0; j < 2*list.size(); j++)
             line.push_back(inf);
         dist.push_back(line);
     }
@@ -347,7 +344,7 @@ std::vector<Cluster> linkage(const std::vector<cv::Point2f>& list)
 void fcluster_rec(std::vector<int>& data, const std::vector<Cluster>& clusters, float threshold, const Cluster& currentCluster, int& binId)
 {
     int startBin = binId;
-    if(currentCluster.first >= data.size())
+    if(currentCluster.first >= (int)data.size())
         fcluster_rec(data, clusters, threshold, clusters[currentCluster.first - data.size()], binId);
     else data[currentCluster.first] = binId;
 
@@ -355,7 +352,7 @@ void fcluster_rec(std::vector<int>& data, const std::vector<Cluster>& clusters, 
         binId++;
     startBin = binId;
 
-    if(currentCluster.second >= data.size())
+    if(currentCluster.second >= (int)data.size())
         fcluster_rec(data, clusters, threshold, clusters[currentCluster.second - data.size()], binId);
     else data[currentCluster.second] = binId;
 
@@ -366,9 +363,9 @@ void fcluster_rec(std::vector<int>& data, const std::vector<Cluster>& clusters, 
 std::vector<int> binCount(const std::vector<int>& T)
 {
     std::vector<int> result;
-    for(int i = 0; i < T.size(); i++)
+    for(size_t i = 0; i < T.size(); i++)
     {
-        while(T[i] >= result.size())
+        while(T[i] >= (int)result.size())
             result.push_back(0);
         result[T[i]]++;
     }
@@ -379,7 +376,7 @@ int argmax(const std::vector<int>& list)
 {
     int max = list[0];
     int id = 0;
-    for(int i = 1; i < list.size(); i++)
+    for(size_t i = 1; i < list.size(); i++)
         if(list[i] > max)
         {
             max = list[i];
@@ -391,7 +388,7 @@ int argmax(const std::vector<int>& list)
 std::vector<int> fcluster(const std::vector<Cluster>& clusters, float threshold)
 {
     std::vector<int> data;
-    for(int i = 0; i < clusters.size()+1; i++)
+    for(size_t i = 0; i < clusters.size()+1; i++)
         data.push_back(0);
     int binId = 0;
     fcluster_rec(data, clusters, threshold, clusters[clusters.size()-1], binId);
@@ -409,16 +406,16 @@ void CMT::estimate(const std::vector<std::pair<cv::KeyPoint, int> >& keypointsIN
     {
         //sort
         std::vector<PairInt> list;
-        for(int i = 0; i < keypointsIN.size(); i++)
+        for(size_t i = 0; i < keypointsIN.size(); i++)
             list.push_back(std::make_pair(keypointsIN[i].second, i));
         std::sort(&list[0], &list[0]+list.size(), comparatorPair<int>);
-        for(int i = 0; i < list.size(); i++)
+        for(size_t i = 0; i < list.size(); i++)
             keypoints.push_back(keypointsIN[list[i].second]);
 
         std::vector<int> ind1;
         std::vector<int> ind2;
-        for(int i = 0; i < list.size(); i++)
-            for(int j = 0; j < list.size(); j++)
+        for(size_t i = 0; i < list.size(); i++)
+            for(size_t j = 0; j < list.size(); j++)
             {
                 if(i != j && keypoints[i].second != keypoints[j].second)
                 {
@@ -432,7 +429,7 @@ void CMT::estimate(const std::vector<std::pair<cv::KeyPoint, int> >& keypointsIN
             std::vector<int> class_ind2;
             std::vector<cv::KeyPoint> pts_ind1;
             std::vector<cv::KeyPoint> pts_ind2;
-            for(int i = 0; i < ind1.size(); i++)
+            for(size_t i = 0; i < ind1.size(); i++)
             {
                 class_ind1.push_back(keypoints[ind1[i]].second-1);
                 class_ind2.push_back(keypoints[ind2[i]].second-1);
@@ -442,7 +439,7 @@ void CMT::estimate(const std::vector<std::pair<cv::KeyPoint, int> >& keypointsIN
 
             std::vector<float> scaleChange;
             std::vector<float> angleDiffs;
-            for(int i = 0; i < pts_ind1.size(); i++)
+            for(size_t i = 0; i < pts_ind1.size(); i++)
             {
                 cv::Point2f p = pts_ind2[i].pt - pts_ind1[i].pt;
                 //This distance might be 0 for some combinations,
@@ -466,7 +463,7 @@ void CMT::estimate(const std::vector<std::pair<cv::KeyPoint, int> >& keypointsIN
             if(!estimateRotation)
                 medRot = 0;
             votes = std::vector<cv::Point2f>();
-            for(int i = 0; i < keypoints.size(); i++)
+            for(size_t i = 0; i < keypoints.size(); i++)
                 votes.push_back(keypoints[i].first.pt - scaleEstimate * rotate(springs[keypoints[i].second-1], medRot));
             //Compute linkage between pairwise distances
             std::vector<Cluster> linkageData = linkage(votes);
@@ -482,7 +479,7 @@ void CMT::estimate(const std::vector<std::pair<cv::KeyPoint, int> >& keypointsIN
             outliers = std::vector<std::pair<cv::KeyPoint, int> >();
             std::vector<std::pair<cv::KeyPoint, int> > newKeypoints;
             std::vector<cv::Point2f> newVotes;
-            for(int i = 0; i < keypoints.size(); i++)
+            for(size_t i = 0; i < keypoints.size(); i++)
             {
                 if(T[i] != Cmax)
                     outliers.push_back(keypoints[i]);
@@ -495,7 +492,7 @@ void CMT::estimate(const std::vector<std::pair<cv::KeyPoint, int> >& keypointsIN
             keypoints = newKeypoints;
 
             center = cv::Point2f(0,0);
-            for(int i = 0; i < newVotes.size(); i++)
+            for(size_t i = 0; i < newVotes.size(); i++)
                 center += newVotes[i];
             center *= (1.0/newVotes.size());
         }
@@ -506,10 +503,10 @@ void CMT::estimate(const std::vector<std::pair<cv::KeyPoint, int> >& keypointsIN
 std::vector<bool> in1d(const std::vector<int>& a, const std::vector<int>& b)
 {
     std::vector<bool> result;
-    for(int i = 0; i < a.size(); i++)
+    for(size_t i = 0; i < a.size(); i++)
     {
         bool found = false;
-        for(int j = 0; j < b.size(); j++)
+        for(size_t j = 0; j < b.size(); j++)
             if(a[i] == b[j])
             {
                 found = true;
@@ -543,7 +540,7 @@ void CMT::processFrame(cv::Mat im_gray)
     activeKeypoints = std::vector<std::pair<cv::KeyPoint, int> >();
 
     //For each keypoint and its descriptor
-    for(int i = 0; i < keypoints.size(); i++)
+    for(size_t i = 0; i < keypoints.size(); i++)
     {
         cv::KeyPoint keypoint = keypoints[i];
 
@@ -554,14 +551,14 @@ void CMT::processFrame(cv::Mat im_gray)
 
         //Convert distances to confidences, do not weight
         std::vector<float> combined;
-        for(int i = 0; i < matches.size(); i++)
+        for(size_t i = 0; i < matches.size(); i++)
             combined.push_back(1 - matches[i].distance / descriptorLength);
 
         std::vector<int>& classes = classesDatabase;
 
         //Sort in descending order
         std::vector<PairFloat> sorted_conf;
-        for(int i = 0; i < combined.size(); i++)
+        for(size_t i = 0; i < combined.size(); i++)
             sorted_conf.push_back(std::make_pair(combined[i], i));
         std::sort(&sorted_conf[0], &sorted_conf[0]+sorted_conf.size(), comparatorPairDesc<float>);
 
@@ -589,7 +586,7 @@ void CMT::processFrame(cv::Mat im_gray)
 
             //Convert distances to confidences
             std::vector<float> confidences;
-            for(int i = 0; i < matches.size(); i++)
+            for(size_t i = 0; i < matches.size(); i++)
                 confidences.push_back(1 - matches[i].distance / descriptorLength);
 
             //Compute the keypoint location relative to the object center
@@ -597,7 +594,7 @@ void CMT::processFrame(cv::Mat im_gray)
 
             //Compute the distances to all springs
             std::vector<float> displacements;
-            for(int i = 0; i < springs.size(); i++)
+            for(size_t i = 0; i < springs.size(); i++)
             {
                 cv::Point2f p = (scaleEstimate * rotate(springs[i], -rotationEstimate) - relative_location);
                 displacements.push_back(sqrt(p.dot(p)));
@@ -605,14 +602,14 @@ void CMT::processFrame(cv::Mat im_gray)
 
             //For each spring, calculate weight
             std::vector<float> combined;
-            for(int i = 0; i < confidences.size(); i++)
+            for(size_t i = 0; i < confidences.size(); i++)
                 combined.push_back((displacements[i] < thrOutlier)*confidences[i]);
 
             std::vector<int>& classes = selectedClasses;
 
             //Sort in descending order
             std::vector<PairFloat> sorted_conf;
-            for(int i = 0; i < combined.size(); i++)
+            for(size_t i = 0; i < combined.size(); i++)
                 sorted_conf.push_back(std::make_pair(combined[i], i));
             std::sort(&sorted_conf[0], &sorted_conf[0]+sorted_conf.size(), comparatorPairDesc<float>);
 
@@ -642,17 +639,17 @@ void CMT::processFrame(cv::Mat im_gray)
     {
         //Extract the keypoint classes
         std::vector<int> tracked_classes;
-        for(int i = 0; i < trackedKeypoints.size(); i++)
+        for(size_t i = 0; i < trackedKeypoints.size(); i++)
             tracked_classes.push_back(trackedKeypoints[i].second);
         //If there already are some active keypoints
         if(activeKeypoints.size() > 0)
         {
             //Add all tracked keypoints that have not been matched
             std::vector<int> associated_classes;
-            for(int i = 0; i < activeKeypoints.size(); i++)
+            for(size_t i = 0; i < activeKeypoints.size(); i++)
                 associated_classes.push_back(activeKeypoints[i].second);
             std::vector<bool> notmissing = in1d(tracked_classes, associated_classes);
-            for(int i = 0; i < trackedKeypoints.size(); i++)
+            for(size_t i = 0; i < trackedKeypoints.size(); i++)
                 if(!notmissing[i])
                     activeKeypoints.push_back(trackedKeypoints[i]);
         }
@@ -669,7 +666,7 @@ void CMT::processFrame(cv::Mat im_gray)
 
     boundingbox = cv::Rect_<float>(NAN,NAN,NAN,NAN);
     hasResult = false;
-    if(!(isnan(center.x) | isnan(center.y)) && activeKeypoints.size() > nbInitialKeypoints / 10)
+    if(!(isnan(center.x) | isnan(center.y)) && (activeKeypoints.size() > nbInitialKeypoints / 10))
     {
         hasResult = true;
 
@@ -686,3 +683,5 @@ void CMT::processFrame(cv::Mat im_gray)
         boundingbox = cv::Rect_<float>(minx, miny, maxx-minx, maxy-miny);
     }
 }
+
+

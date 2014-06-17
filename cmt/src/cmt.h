@@ -104,3 +104,5 @@ void inout_rect(const std::vector<cv::KeyPoint>& keypoints, cv::Point2f topleft,
 void track(cv::Mat im_prev, cv::Mat im_gray, const std::vector<std::pair<cv::KeyPoint, int> >& keypointsIN, std::vector<std::pair<cv::KeyPoint, int> >& keypointsTracked, std::vector<unsigned char>& status, int THR_FB = 20);
 cv::Point2f rotate(cv::Point2f p, float rad);
 #endif // CMT_H
+
+
