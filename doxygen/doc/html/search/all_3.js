@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['matlab_20viewers',['MATLAB Viewers',['../group__icub__matlabViewers.html',1,'']]]
+  ['jointvelctrlident',['jointVelCtrlIdent',['../group__icub__jointVelCtrlIdent.html',1,'']]]
 ];

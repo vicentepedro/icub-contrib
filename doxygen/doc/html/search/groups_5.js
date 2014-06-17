@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['tld_20tracker',['TLD Tracker',['../group__icub__tld.html',1,'']]]
+  ['signalscope',['signalScope',['../group__icub__signalScope.html',1,'']]]
 ];
