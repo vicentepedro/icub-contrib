@@ -1,5 +1,5 @@
 <application>
-<name>TLD test</name>
+<name>CMT test</name>
         <dependencies>
                 <port>/icub/camcalib/left/out</port>
         </dependencies>
