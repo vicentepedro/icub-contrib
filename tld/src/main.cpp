@@ -420,7 +420,7 @@ public:
 
         if (doTLD && !skipProcessingOnce)
         {
-            tracker->processImage(imgMat);
+            tracker->processImage(imgMat);  // yep, color image, otherwise it does not work
             if (tracker->currBB!=NULL)
             {
                 cv::Point tl,br;
