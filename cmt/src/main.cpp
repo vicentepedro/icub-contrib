@@ -236,10 +236,13 @@ public:
 
                 if (imgOutPort.getOutputCount()>0)
                 {
-                    cv::line(imgMat,tracker->topLeft,tracker->topRight,cv::Scalar(255,0,0));
-                    cv::line(imgMat,tracker->topRight,tracker->bottomRight,cv::Scalar(255,0,0));
-                    cv::line(imgMat,tracker->bottomRight,tracker->bottomLeft,cv::Scalar(255,0,0));
-                    cv::line(imgMat,tracker->bottomLeft,tracker->topLeft,cv::Scalar(255,0,0));                    
+                    cv::line(imgMat,tracker->topLeft,tracker->topRight,cv::Scalar(255,0,0),2);
+                    cv::line(imgMat,tracker->topRight,tracker->bottomRight,cv::Scalar(255,0,0),2);
+                    cv::line(imgMat,tracker->bottomRight,tracker->bottomLeft,cv::Scalar(255,0,0),2);
+                    cv::line(imgMat,tracker->bottomLeft,tracker->topLeft,cv::Scalar(255,0,0),2);
+
+                    for (int i=0; i<tracker->trackedKeypoints.size(); i++)
+                        cv::circle(imgMat,tracker->trackedKeypoints[i].first.pt,3,cv::Scalar(0,255,0));
                 }
             }            
         }

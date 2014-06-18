@@ -641,7 +641,7 @@ bool CMT::processFrame(cv::Mat im_gray)
         std::vector<int> tracked_classes;
         for(size_t i = 0; i < trackedKeypoints.size(); i++)
             tracked_classes.push_back(trackedKeypoints[i].second);
-        //If there already are some active keypoints
+        //If there are already some active keypoints
         if(activeKeypoints.size() > 0)
         {
             //Add all tracked keypoints that have not been matched
