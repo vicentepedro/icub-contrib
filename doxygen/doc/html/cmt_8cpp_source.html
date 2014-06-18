@@ -180,7 +180,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;</div>
 <div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;        <span class="comment">//Set status depending on fb_err and lk error</span></div>
 <div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;        <span class="keywordflow">for</span>(<span class="keywordtype">size_t</span> i = 0; i &lt; status.size(); i++)</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;            status[i] = fb_err[i] &lt;= THR_FB &amp; status[i];</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;            status[i] = (fb_err[i] &lt;= THR_FB) &amp; status[i];</div>
 <div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;</div>
 <div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;        keypointsTracked = std::vector&lt;std::pair&lt;cv::KeyPoint, int&gt; &gt;();</div>
 <div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;        <span class="keywordflow">for</span>(<span class="keywordtype">size_t</span> i = 0; i &lt; pts.size(); i++)</div>
@@ -415,7 +415,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00327"></a><span class="lineno">  327</span>&#160;        cluster.first = x;</div>
 <div class="line"><a name="l00328"></a><span class="lineno">  328</span>&#160;        cluster.second = y;</div>
 <div class="line"><a name="l00329"></a><span class="lineno">  329</span>&#160;        cluster.dist = min;</div>
-<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;        cluster.num = (x &lt; list.size() ? 1 : clusters[x-list.size()].num) + (y &lt; list.size() ? 1 : clusters[y-list.size()].num);</div>
+<div class="line"><a name="l00330"></a><span class="lineno">  330</span>&#160;        cluster.num = (x &lt; (int)list.size() ? 1 : clusters[x-list.size()].num) + (y &lt; (<span class="keywordtype">int</span>)list.size() ? 1 : clusters[y-list.size()].num);</div>
 <div class="line"><a name="l00331"></a><span class="lineno">  331</span>&#160;        used[x] = <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00332"></a><span class="lineno">  332</span>&#160;        used[y] = <span class="keyword">true</span>;</div>
 <div class="line"><a name="l00333"></a><span class="lineno">  333</span>&#160;        <span class="keywordtype">int</span> limit = list.size()+clusters.size();</div>
@@ -541,7 +541,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00453"></a><span class="lineno">  453</span>&#160;                <span class="keywordtype">float</span> angleDiff = angle - origAngle;</div>
 <div class="line"><a name="l00454"></a><span class="lineno">  454</span>&#160;                <span class="comment">//Fix long way angles</span></div>
 <div class="line"><a name="l00455"></a><span class="lineno">  455</span>&#160;                <span class="keywordflow">if</span>(fabs(angleDiff) &gt; CV_PI)</div>
-<div class="line"><a name="l00456"></a><span class="lineno">  456</span>&#160;                    angleDiff -= sign(angleDiff) * 2 * CV_PI;</div>
+<div class="line"><a name="l00456"></a><span class="lineno">  456</span>&#160;                    angleDiff -= sign(angleDiff) * 2.0F * (float)CV_PI;</div>
 <div class="line"><a name="l00457"></a><span class="lineno">  457</span>&#160;                angleDiffs.push_back(angleDiff);</div>
 <div class="line"><a name="l00458"></a><span class="lineno">  458</span>&#160;            }</div>
 <div class="line"><a name="l00459"></a><span class="lineno">  459</span>&#160;            scaleEstimate = median(scaleChange);</div>
@@ -557,7 +557,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00469"></a><span class="lineno">  469</span>&#160;            std::vector&lt;Cluster&gt; linkageData = linkage(votes);</div>
 <div class="line"><a name="l00470"></a><span class="lineno">  470</span>&#160;</div>
 <div class="line"><a name="l00471"></a><span class="lineno">  471</span>&#160;            <span class="comment">//Perform hierarchical distance-based clustering</span></div>
-<div class="line"><a name="l00472"></a><span class="lineno">  472</span>&#160;            std::vector&lt;int&gt; T = fcluster(linkageData, thrOutlier);</div>
+<div class="line"><a name="l00472"></a><span class="lineno">  472</span>&#160;            std::vector&lt;int&gt; T = fcluster(linkageData, (<span class="keywordtype">float</span>)thrOutlier);</div>
 <div class="line"><a name="l00473"></a><span class="lineno">  473</span>&#160;            <span class="comment">//Count votes for each cluster</span></div>
 <div class="line"><a name="l00474"></a><span class="lineno">  474</span>&#160;            std::vector&lt;int&gt; cnt = binCount(T);</div>
 <div class="line"><a name="l00475"></a><span class="lineno">  475</span>&#160;            <span class="comment">//Get largest class</span></div>
@@ -605,7 +605,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00517"></a><span class="lineno">  517</span>&#160;    <span class="keywordflow">return</span> result;</div>
 <div class="line"><a name="l00518"></a><span class="lineno">  518</span>&#160;}</div>
 <div class="line"><a name="l00519"></a><span class="lineno">  519</span>&#160;</div>
-<div class="line"><a name="l00520"></a><span class="lineno">  520</span>&#160;<span class="keywordtype">void</span> CMT::processFrame(cv::Mat im_gray)</div>
+<div class="line"><a name="l00520"></a><span class="lineno">  520</span>&#160;<span class="keywordtype">bool</span> CMT::processFrame(cv::Mat im_gray)</div>
 <div class="line"><a name="l00521"></a><span class="lineno">  521</span>&#160;{</div>
 <div class="line"><a name="l00522"></a><span class="lineno">  522</span>&#160;    trackedKeypoints = std::vector&lt;std::pair&lt;cv::KeyPoint, int&gt; &gt;();</div>
 <div class="line"><a name="l00523"></a><span class="lineno">  523</span>&#160;    std::vector&lt;unsigned char&gt; status;</div>
@@ -639,15 +639,15 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00551"></a><span class="lineno">  551</span>&#160;</div>
 <div class="line"><a name="l00552"></a><span class="lineno">  552</span>&#160;        <span class="comment">//Convert distances to confidences, do not weight</span></div>
 <div class="line"><a name="l00553"></a><span class="lineno">  553</span>&#160;        std::vector&lt;float&gt; combined;</div>
-<div class="line"><a name="l00554"></a><span class="lineno">  554</span>&#160;        <span class="keywordflow">for</span>(<span class="keywordtype">size_t</span> i = 0; i &lt; matches.size(); i++)</div>
-<div class="line"><a name="l00555"></a><span class="lineno">  555</span>&#160;            combined.push_back(1 - matches[i].distance / descriptorLength);</div>
+<div class="line"><a name="l00554"></a><span class="lineno">  554</span>&#160;        <span class="keywordflow">for</span>(<span class="keywordtype">size_t</span> j = 0; j &lt; matches.size(); j++)</div>
+<div class="line"><a name="l00555"></a><span class="lineno">  555</span>&#160;            combined.push_back(1 - matches[j].distance / descriptorLength);</div>
 <div class="line"><a name="l00556"></a><span class="lineno">  556</span>&#160;</div>
 <div class="line"><a name="l00557"></a><span class="lineno">  557</span>&#160;        std::vector&lt;int&gt;&amp; classes = classesDatabase;</div>
 <div class="line"><a name="l00558"></a><span class="lineno">  558</span>&#160;</div>
 <div class="line"><a name="l00559"></a><span class="lineno">  559</span>&#160;        <span class="comment">//Sort in descending order</span></div>
 <div class="line"><a name="l00560"></a><span class="lineno">  560</span>&#160;        std::vector&lt;PairFloat&gt; sorted_conf;</div>
-<div class="line"><a name="l00561"></a><span class="lineno">  561</span>&#160;        <span class="keywordflow">for</span>(<span class="keywordtype">size_t</span> i = 0; i &lt; combined.size(); i++)</div>
-<div class="line"><a name="l00562"></a><span class="lineno">  562</span>&#160;            sorted_conf.push_back(std::make_pair(combined[i], i));</div>
+<div class="line"><a name="l00561"></a><span class="lineno">  561</span>&#160;        <span class="keywordflow">for</span>(<span class="keywordtype">size_t</span> j = 0; j &lt; combined.size(); j++)</div>
+<div class="line"><a name="l00562"></a><span class="lineno">  562</span>&#160;            sorted_conf.push_back(std::make_pair(combined[j], j));</div>
 <div class="line"><a name="l00563"></a><span class="lineno">  563</span>&#160;        std::sort(&amp;sorted_conf[0], &amp;sorted_conf[0]+sorted_conf.size(), comparatorPairDesc&lt;float&gt;);</div>
 <div class="line"><a name="l00564"></a><span class="lineno">  564</span>&#160;</div>
 <div class="line"><a name="l00565"></a><span class="lineno">  565</span>&#160;        <span class="comment">//Get best and second best index</span></div>
@@ -674,31 +674,31 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00586"></a><span class="lineno">  586</span>&#160;</div>
 <div class="line"><a name="l00587"></a><span class="lineno">  587</span>&#160;            <span class="comment">//Convert distances to confidences</span></div>
 <div class="line"><a name="l00588"></a><span class="lineno">  588</span>&#160;            std::vector&lt;float&gt; confidences;</div>
-<div class="line"><a name="l00589"></a><span class="lineno">  589</span>&#160;            <span class="keywordflow">for</span>(<span class="keywordtype">size_t</span> i = 0; i &lt; matches.size(); i++)</div>
-<div class="line"><a name="l00590"></a><span class="lineno">  590</span>&#160;                confidences.push_back(1 - matches[i].distance / descriptorLength);</div>
+<div class="line"><a name="l00589"></a><span class="lineno">  589</span>&#160;            <span class="keywordflow">for</span>(<span class="keywordtype">size_t</span> j = 0; j &lt; matches.size(); j++)</div>
+<div class="line"><a name="l00590"></a><span class="lineno">  590</span>&#160;                confidences.push_back(1 - matches[j].distance / descriptorLength);</div>
 <div class="line"><a name="l00591"></a><span class="lineno">  591</span>&#160;</div>
 <div class="line"><a name="l00592"></a><span class="lineno">  592</span>&#160;            <span class="comment">//Compute the keypoint location relative to the object center</span></div>
 <div class="line"><a name="l00593"></a><span class="lineno">  593</span>&#160;            cv::Point2f relative_location = keypoint.pt - center;</div>
 <div class="line"><a name="l00594"></a><span class="lineno">  594</span>&#160;</div>
 <div class="line"><a name="l00595"></a><span class="lineno">  595</span>&#160;            <span class="comment">//Compute the distances to all springs</span></div>
 <div class="line"><a name="l00596"></a><span class="lineno">  596</span>&#160;            std::vector&lt;float&gt; displacements;</div>
-<div class="line"><a name="l00597"></a><span class="lineno">  597</span>&#160;            <span class="keywordflow">for</span>(<span class="keywordtype">size_t</span> i = 0; i &lt; springs.size(); i++)</div>
+<div class="line"><a name="l00597"></a><span class="lineno">  597</span>&#160;            <span class="keywordflow">for</span>(<span class="keywordtype">size_t</span> j = 0; j &lt; springs.size(); j++)</div>
 <div class="line"><a name="l00598"></a><span class="lineno">  598</span>&#160;            {</div>
-<div class="line"><a name="l00599"></a><span class="lineno">  599</span>&#160;                cv::Point2f p = (scaleEstimate * rotate(springs[i], -rotationEstimate) - relative_location);</div>
+<div class="line"><a name="l00599"></a><span class="lineno">  599</span>&#160;                cv::Point2f p = (scaleEstimate * rotate(springs[j], -rotationEstimate) - relative_location);</div>
 <div class="line"><a name="l00600"></a><span class="lineno">  600</span>&#160;                displacements.push_back(sqrt(p.dot(p)));</div>
 <div class="line"><a name="l00601"></a><span class="lineno">  601</span>&#160;            }</div>
 <div class="line"><a name="l00602"></a><span class="lineno">  602</span>&#160;</div>
 <div class="line"><a name="l00603"></a><span class="lineno">  603</span>&#160;            <span class="comment">//For each spring, calculate weight</span></div>
 <div class="line"><a name="l00604"></a><span class="lineno">  604</span>&#160;            std::vector&lt;float&gt; combined;</div>
-<div class="line"><a name="l00605"></a><span class="lineno">  605</span>&#160;            <span class="keywordflow">for</span>(<span class="keywordtype">size_t</span> i = 0; i &lt; confidences.size(); i++)</div>
-<div class="line"><a name="l00606"></a><span class="lineno">  606</span>&#160;                combined.push_back((displacements[i] &lt; thrOutlier)*confidences[i]);</div>
+<div class="line"><a name="l00605"></a><span class="lineno">  605</span>&#160;            <span class="keywordflow">for</span>(<span class="keywordtype">size_t</span> j = 0; j &lt; confidences.size(); j++)</div>
+<div class="line"><a name="l00606"></a><span class="lineno">  606</span>&#160;                combined.push_back((displacements[j] &lt; thrOutlier)*confidences[j]);</div>
 <div class="line"><a name="l00607"></a><span class="lineno">  607</span>&#160;</div>
 <div class="line"><a name="l00608"></a><span class="lineno">  608</span>&#160;            std::vector&lt;int&gt;&amp; classes = selectedClasses;</div>
 <div class="line"><a name="l00609"></a><span class="lineno">  609</span>&#160;</div>
 <div class="line"><a name="l00610"></a><span class="lineno">  610</span>&#160;            <span class="comment">//Sort in descending order</span></div>
 <div class="line"><a name="l00611"></a><span class="lineno">  611</span>&#160;            std::vector&lt;PairFloat&gt; sorted_conf;</div>
-<div class="line"><a name="l00612"></a><span class="lineno">  612</span>&#160;            <span class="keywordflow">for</span>(<span class="keywordtype">size_t</span> i = 0; i &lt; combined.size(); i++)</div>
-<div class="line"><a name="l00613"></a><span class="lineno">  613</span>&#160;                sorted_conf.push_back(std::make_pair(combined[i], i));</div>
+<div class="line"><a name="l00612"></a><span class="lineno">  612</span>&#160;            <span class="keywordflow">for</span>(<span class="keywordtype">size_t</span> j = 0; j &lt; combined.size(); j++)</div>
+<div class="line"><a name="l00613"></a><span class="lineno">  613</span>&#160;                sorted_conf.push_back(std::make_pair(combined[j], j));</div>
 <div class="line"><a name="l00614"></a><span class="lineno">  614</span>&#160;            std::sort(&amp;sorted_conf[0], &amp;sorted_conf[0]+sorted_conf.size(), comparatorPairDesc&lt;float&gt;);</div>
 <div class="line"><a name="l00615"></a><span class="lineno">  615</span>&#160;</div>
 <div class="line"><a name="l00616"></a><span class="lineno">  616</span>&#160;            <span class="comment">//Get best and second best index</span></div>
@@ -714,9 +714,9 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00626"></a><span class="lineno">  626</span>&#160;            <span class="comment">//If distance ratio is ok and absolute distance is ok and keypoint class is not background</span></div>
 <div class="line"><a name="l00627"></a><span class="lineno">  627</span>&#160;            <span class="keywordflow">if</span>(ratio &lt; thrRatio &amp;&amp; combined[bestInd] &gt; thrConf &amp;&amp; keypoint_class != 0)</div>
 <div class="line"><a name="l00628"></a><span class="lineno">  628</span>&#160;            {</div>
-<div class="line"><a name="l00629"></a><span class="lineno">  629</span>&#160;                <span class="keywordflow">for</span>(<span class="keywordtype">int</span> i = activeKeypoints.size()-1; i &gt;= 0; i--)</div>
-<div class="line"><a name="l00630"></a><span class="lineno">  630</span>&#160;                    <span class="keywordflow">if</span>(activeKeypoints[i].second == keypoint_class)</div>
-<div class="line"><a name="l00631"></a><span class="lineno">  631</span>&#160;                        activeKeypoints.erase(activeKeypoints.begin()+i);</div>
+<div class="line"><a name="l00629"></a><span class="lineno">  629</span>&#160;                <span class="keywordflow">for</span>(<span class="keywordtype">int</span> j = activeKeypoints.size()-1; j &gt;= 0; j--)</div>
+<div class="line"><a name="l00630"></a><span class="lineno">  630</span>&#160;                    <span class="keywordflow">if</span>(activeKeypoints[j].second == keypoint_class)</div>
+<div class="line"><a name="l00631"></a><span class="lineno">  631</span>&#160;                        activeKeypoints.erase(activeKeypoints.begin()+j);</div>
 <div class="line"><a name="l00632"></a><span class="lineno">  632</span>&#160;                activeKeypoints.push_back(std::make_pair(keypoint, keypoint_class));</div>
 <div class="line"><a name="l00633"></a><span class="lineno">  633</span>&#160;            }</div>
 <div class="line"><a name="l00634"></a><span class="lineno">  634</span>&#160;        }</div>
@@ -729,7 +729,7 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00641"></a><span class="lineno">  641</span>&#160;        std::vector&lt;int&gt; tracked_classes;</div>
 <div class="line"><a name="l00642"></a><span class="lineno">  642</span>&#160;        <span class="keywordflow">for</span>(<span class="keywordtype">size_t</span> i = 0; i &lt; trackedKeypoints.size(); i++)</div>
 <div class="line"><a name="l00643"></a><span class="lineno">  643</span>&#160;            tracked_classes.push_back(trackedKeypoints[i].second);</div>
-<div class="line"><a name="l00644"></a><span class="lineno">  644</span>&#160;        <span class="comment">//If there already are some active keypoints</span></div>
+<div class="line"><a name="l00644"></a><span class="lineno">  644</span>&#160;        <span class="comment">//If there are already some active keypoints</span></div>
 <div class="line"><a name="l00645"></a><span class="lineno">  645</span>&#160;        <span class="keywordflow">if</span>(activeKeypoints.size() &gt; 0)</div>
 <div class="line"><a name="l00646"></a><span class="lineno">  646</span>&#160;        {</div>
 <div class="line"><a name="l00647"></a><span class="lineno">  647</span>&#160;            <span class="comment">//Add all tracked keypoints that have not been matched</span></div>
@@ -753,30 +753,30 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00665"></a><span class="lineno">  665</span>&#160;    bottomRight = cv::Point2f(NAN,NAN);</div>
 <div class="line"><a name="l00666"></a><span class="lineno">  666</span>&#160;</div>
 <div class="line"><a name="l00667"></a><span class="lineno">  667</span>&#160;    boundingbox = cv::Rect_&lt;float&gt;(NAN,NAN,NAN,NAN);</div>
-<div class="line"><a name="l00668"></a><span class="lineno">  668</span>&#160;    hasResult = <span class="keyword">false</span>;</div>
-<div class="line"><a name="l00669"></a><span class="lineno">  669</span>&#160;    <span class="keywordflow">if</span>(!(isnan(center.x) | isnan(center.y)) &amp;&amp; (activeKeypoints.size() &gt; nbInitialKeypoints / 10))</div>
-<div class="line"><a name="l00670"></a><span class="lineno">  670</span>&#160;    {</div>
-<div class="line"><a name="l00671"></a><span class="lineno">  671</span>&#160;        hasResult = <span class="keyword">true</span>;</div>
-<div class="line"><a name="l00672"></a><span class="lineno">  672</span>&#160;</div>
-<div class="line"><a name="l00673"></a><span class="lineno">  673</span>&#160;        topLeft = center + scaleEstimate*rotate(centerToTopLeft, rotationEstimate);</div>
-<div class="line"><a name="l00674"></a><span class="lineno">  674</span>&#160;        topRight = center + scaleEstimate*rotate(centerToTopRight, rotationEstimate);</div>
-<div class="line"><a name="l00675"></a><span class="lineno">  675</span>&#160;        bottomLeft = center + scaleEstimate*rotate(centerToBottomLeft, rotationEstimate);</div>
-<div class="line"><a name="l00676"></a><span class="lineno">  676</span>&#160;        bottomRight = center + scaleEstimate*rotate(centerToBottomRight, rotationEstimate);</div>
-<div class="line"><a name="l00677"></a><span class="lineno">  677</span>&#160;</div>
-<div class="line"><a name="l00678"></a><span class="lineno">  678</span>&#160;        <span class="keywordtype">float</span> minx = std::min(std::min(topLeft.x,topRight.x),std::min(bottomRight.x, bottomLeft.x));</div>
-<div class="line"><a name="l00679"></a><span class="lineno">  679</span>&#160;        <span class="keywordtype">float</span> miny = std::min(std::min(topLeft.y,topRight.y),std::min(bottomRight.y, bottomLeft.y));</div>
-<div class="line"><a name="l00680"></a><span class="lineno">  680</span>&#160;        <span class="keywordtype">float</span> maxx = std::max(std::max(topLeft.x,topRight.x),std::max(bottomRight.x, bottomLeft.x));</div>
-<div class="line"><a name="l00681"></a><span class="lineno">  681</span>&#160;        <span class="keywordtype">float</span> maxy = std::max(std::max(topLeft.y,topRight.y),std::max(bottomRight.y, bottomLeft.y));</div>
-<div class="line"><a name="l00682"></a><span class="lineno">  682</span>&#160;</div>
-<div class="line"><a name="l00683"></a><span class="lineno">  683</span>&#160;        boundingbox = cv::Rect_&lt;float&gt;(minx, miny, maxx-minx, maxy-miny);</div>
-<div class="line"><a name="l00684"></a><span class="lineno">  684</span>&#160;    }</div>
+<div class="line"><a name="l00668"></a><span class="lineno">  668</span>&#160;    <span class="keywordflow">if</span>(!(isnan(center.x) | isnan(center.y)) &amp;&amp; ((int)activeKeypoints.size() &gt; nbInitialKeypoints / 10))</div>
+<div class="line"><a name="l00669"></a><span class="lineno">  669</span>&#160;    {</div>
+<div class="line"><a name="l00670"></a><span class="lineno">  670</span>&#160;        topLeft = center + scaleEstimate*rotate(centerToTopLeft, rotationEstimate);</div>
+<div class="line"><a name="l00671"></a><span class="lineno">  671</span>&#160;        topRight = center + scaleEstimate*rotate(centerToTopRight, rotationEstimate);</div>
+<div class="line"><a name="l00672"></a><span class="lineno">  672</span>&#160;        bottomLeft = center + scaleEstimate*rotate(centerToBottomLeft, rotationEstimate);</div>
+<div class="line"><a name="l00673"></a><span class="lineno">  673</span>&#160;        bottomRight = center + scaleEstimate*rotate(centerToBottomRight, rotationEstimate);</div>
+<div class="line"><a name="l00674"></a><span class="lineno">  674</span>&#160;</div>
+<div class="line"><a name="l00675"></a><span class="lineno">  675</span>&#160;        <span class="keywordtype">float</span> minx = std::min(std::min(topLeft.x,topRight.x),std::min(bottomRight.x, bottomLeft.x));</div>
+<div class="line"><a name="l00676"></a><span class="lineno">  676</span>&#160;        <span class="keywordtype">float</span> miny = std::min(std::min(topLeft.y,topRight.y),std::min(bottomRight.y, bottomLeft.y));</div>
+<div class="line"><a name="l00677"></a><span class="lineno">  677</span>&#160;        <span class="keywordtype">float</span> maxx = std::max(std::max(topLeft.x,topRight.x),std::max(bottomRight.x, bottomLeft.x));</div>
+<div class="line"><a name="l00678"></a><span class="lineno">  678</span>&#160;        <span class="keywordtype">float</span> maxy = std::max(std::max(topLeft.y,topRight.y),std::max(bottomRight.y, bottomLeft.y));</div>
+<div class="line"><a name="l00679"></a><span class="lineno">  679</span>&#160;</div>
+<div class="line"><a name="l00680"></a><span class="lineno">  680</span>&#160;        boundingbox = cv::Rect_&lt;float&gt;(minx, miny, maxx-minx, maxy-miny);</div>
+<div class="line"><a name="l00681"></a><span class="lineno">  681</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">true</span>;</div>
+<div class="line"><a name="l00682"></a><span class="lineno">  682</span>&#160;    }</div>
+<div class="line"><a name="l00683"></a><span class="lineno">  683</span>&#160;    <span class="keywordflow">else</span></div>
+<div class="line"><a name="l00684"></a><span class="lineno">  684</span>&#160;        <span class="keywordflow">return</span> <span class="keyword">false</span>;</div>
 <div class="line"><a name="l00685"></a><span class="lineno">  685</span>&#160;}</div>
 <div class="line"><a name="l00686"></a><span class="lineno">  686</span>&#160;</div>
 <div class="line"><a name="l00687"></a><span class="lineno">  687</span>&#160;</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jun 17 2014 21:52:19 for icub-contrib by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Jun 18 2014 12:03:19 for icub-contrib by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.7
 </small></address>

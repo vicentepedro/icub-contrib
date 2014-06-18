@@ -23,9 +23,11 @@ href="http://www.gnebehay.com/cmt">CMT</a> algorithm.
  
 \section intro_sec Description 
 This is a yarp wrapper of the CMT algorithm (a.k.a. 
-<b>Consensus-based-Matching</b>) for tracking objects. \n
-The C++ version of the method is taken from the
-<a href="https://github.com/delmottea/libCMT">libCMT</a> library. 
+<b>Consensus-based Matching and Tracking</b>) for tracking 
+objects. \n 
+The C++ version of the method is taken from the 
+<a href="https://github.com/delmottea/libCMT">libCMT</a> 
+library. 
  
 Available RPC services are: 
  

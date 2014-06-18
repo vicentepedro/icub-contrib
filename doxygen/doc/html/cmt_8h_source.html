@@ -155,49 +155,47 @@ var searchBox = new SearchBox("searchBox", "search",false,'Search');
 <div class="line"><a name="l00067"></a><span class="lineno">   67</span>&#160;    cv::Point2f bottomLeft;</div>
 <div class="line"><a name="l00068"></a><span class="lineno">   68</span>&#160;</div>
 <div class="line"><a name="l00069"></a><span class="lineno">   69</span>&#160;    cv::Rect_&lt;float&gt; boundingbox;</div>
-<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    <span class="keywordtype">bool</span> hasResult;</div>
-<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;</div>
-<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    cv::Point2f centerToTopLeft;</div>
-<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    cv::Point2f centerToTopRight;</div>
-<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;    cv::Point2f centerToBottomRight;</div>
-<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    cv::Point2f centerToBottomLeft;</div>
+<div class="line"><a name="l00070"></a><span class="lineno">   70</span>&#160;    cv::Point2f centerToTopLeft;</div>
+<div class="line"><a name="l00071"></a><span class="lineno">   71</span>&#160;    cv::Point2f centerToTopRight;</div>
+<div class="line"><a name="l00072"></a><span class="lineno">   72</span>&#160;    cv::Point2f centerToBottomRight;</div>
+<div class="line"><a name="l00073"></a><span class="lineno">   73</span>&#160;    cv::Point2f centerToBottomLeft;</div>
+<div class="line"><a name="l00074"></a><span class="lineno">   74</span>&#160;</div>
+<div class="line"><a name="l00075"></a><span class="lineno">   75</span>&#160;    std::vector&lt;cv::Point2f&gt; springs;</div>
 <div class="line"><a name="l00076"></a><span class="lineno">   76</span>&#160;</div>
-<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    std::vector&lt;cv::Point2f&gt; springs;</div>
-<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;</div>
-<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    cv::Mat im_prev;</div>
-<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;    std::vector&lt;std::pair&lt;cv::KeyPoint,int&gt; &gt; activeKeypoints;</div>
-<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    std::vector&lt;std::pair&lt;cv::KeyPoint,int&gt; &gt; trackedKeypoints;</div>
+<div class="line"><a name="l00077"></a><span class="lineno">   77</span>&#160;    cv::Mat im_prev;</div>
+<div class="line"><a name="l00078"></a><span class="lineno">   78</span>&#160;    std::vector&lt;std::pair&lt;cv::KeyPoint,int&gt; &gt; activeKeypoints;</div>
+<div class="line"><a name="l00079"></a><span class="lineno">   79</span>&#160;    std::vector&lt;std::pair&lt;cv::KeyPoint,int&gt; &gt; trackedKeypoints;</div>
+<div class="line"><a name="l00080"></a><span class="lineno">   80</span>&#160;</div>
+<div class="line"><a name="l00081"></a><span class="lineno">   81</span>&#160;    <span class="keywordtype">int</span> nbInitialKeypoints;</div>
 <div class="line"><a name="l00082"></a><span class="lineno">   82</span>&#160;</div>
-<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    <span class="keywordtype">int</span> nbInitialKeypoints;</div>
+<div class="line"><a name="l00083"></a><span class="lineno">   83</span>&#160;    std::vector&lt;cv::Point2f&gt; votes;</div>
 <div class="line"><a name="l00084"></a><span class="lineno">   84</span>&#160;</div>
-<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    std::vector&lt;cv::Point2f&gt; votes;</div>
+<div class="line"><a name="l00085"></a><span class="lineno">   85</span>&#160;    std::vector&lt;std::pair&lt;cv::KeyPoint, int&gt; &gt; outliers;</div>
 <div class="line"><a name="l00086"></a><span class="lineno">   86</span>&#160;</div>
-<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    std::vector&lt;std::pair&lt;cv::KeyPoint, int&gt; &gt; outliers;</div>
-<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;</div>
-<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    CMT();</div>
-<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    <span class="keywordtype">void</span> initialise(cv::Mat im_gray0, cv::Point2f topleft, cv::Point2f bottomright);</div>
-<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;    <span class="keywordtype">void</span> estimate(<span class="keyword">const</span> std::vector&lt;std::pair&lt;cv::KeyPoint, int&gt; &gt;&amp; keypointsIN, cv::Point2f&amp; center, <span class="keywordtype">float</span>&amp; scaleEstimate, <span class="keywordtype">float</span>&amp; medRot, std::vector&lt;std::pair&lt;cv::KeyPoint, int&gt; &gt;&amp; keypoints);</div>
-<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;    <span class="keywordtype">void</span> processFrame(cv::Mat im_gray);</div>
-<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;};</div>
-<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;</div>
-<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="keyword">class </span>Cluster</div>
-<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;{</div>
-<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;<span class="keyword">public</span>:</div>
-<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    <span class="keywordtype">int</span> first, second;<span class="comment">//cluster id</span></div>
-<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;    <span class="keywordtype">float</span> dist;</div>
-<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;    <span class="keywordtype">int</span> num;</div>
-<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;};</div>
-<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;</div>
-<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;<span class="keywordtype">void</span> inout_rect(<span class="keyword">const</span> std::vector&lt;cv::KeyPoint&gt;&amp; keypoints, cv::Point2f topleft, cv::Point2f bottomright, std::vector&lt;cv::KeyPoint&gt;&amp; in, std::vector&lt;cv::KeyPoint&gt;&amp; out);</div>
-<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;<span class="keywordtype">void</span> track(cv::Mat im_prev, cv::Mat im_gray, <span class="keyword">const</span> std::vector&lt;std::pair&lt;cv::KeyPoint, int&gt; &gt;&amp; keypointsIN, std::vector&lt;std::pair&lt;cv::KeyPoint, int&gt; &gt;&amp; keypointsTracked, std::vector&lt;unsigned char&gt;&amp; status, <span class="keywordtype">int</span> THR_FB = 20);</div>
-<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;cv::Point2f rotate(cv::Point2f p, <span class="keywordtype">float</span> rad);</div>
-<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;<span class="preprocessor">#endif // CMT_H</span></div>
-<div class="line"><a name="l00107"></a><span class="lineno">  107</span>&#160;</div>
-<div class="line"><a name="l00108"></a><span class="lineno">  108</span>&#160;</div>
+<div class="line"><a name="l00087"></a><span class="lineno">   87</span>&#160;    CMT();</div>
+<div class="line"><a name="l00088"></a><span class="lineno">   88</span>&#160;    <span class="keywordtype">void</span> initialise(cv::Mat im_gray0, cv::Point2f topleft, cv::Point2f bottomright);</div>
+<div class="line"><a name="l00089"></a><span class="lineno">   89</span>&#160;    <span class="keywordtype">void</span> estimate(<span class="keyword">const</span> std::vector&lt;std::pair&lt;cv::KeyPoint, int&gt; &gt;&amp; keypointsIN, cv::Point2f&amp; center, <span class="keywordtype">float</span>&amp; scaleEstimate, <span class="keywordtype">float</span>&amp; medRot, std::vector&lt;std::pair&lt;cv::KeyPoint, int&gt; &gt;&amp; keypoints);</div>
+<div class="line"><a name="l00090"></a><span class="lineno">   90</span>&#160;    <span class="keywordtype">bool</span> processFrame(cv::Mat im_gray);</div>
+<div class="line"><a name="l00091"></a><span class="lineno">   91</span>&#160;};</div>
+<div class="line"><a name="l00092"></a><span class="lineno">   92</span>&#160;</div>
+<div class="line"><a name="l00093"></a><span class="lineno">   93</span>&#160;<span class="keyword">class </span>Cluster</div>
+<div class="line"><a name="l00094"></a><span class="lineno">   94</span>&#160;{</div>
+<div class="line"><a name="l00095"></a><span class="lineno">   95</span>&#160;<span class="keyword">public</span>:</div>
+<div class="line"><a name="l00096"></a><span class="lineno">   96</span>&#160;    <span class="keywordtype">int</span> first, second;<span class="comment">//cluster id</span></div>
+<div class="line"><a name="l00097"></a><span class="lineno">   97</span>&#160;    <span class="keywordtype">float</span> dist;</div>
+<div class="line"><a name="l00098"></a><span class="lineno">   98</span>&#160;    <span class="keywordtype">int</span> num;</div>
+<div class="line"><a name="l00099"></a><span class="lineno">   99</span>&#160;};</div>
+<div class="line"><a name="l00100"></a><span class="lineno">  100</span>&#160;</div>
+<div class="line"><a name="l00101"></a><span class="lineno">  101</span>&#160;<span class="keywordtype">void</span> inout_rect(<span class="keyword">const</span> std::vector&lt;cv::KeyPoint&gt;&amp; keypoints, cv::Point2f topleft, cv::Point2f bottomright, std::vector&lt;cv::KeyPoint&gt;&amp; in, std::vector&lt;cv::KeyPoint&gt;&amp; out);</div>
+<div class="line"><a name="l00102"></a><span class="lineno">  102</span>&#160;<span class="keywordtype">void</span> track(cv::Mat im_prev, cv::Mat im_gray, <span class="keyword">const</span> std::vector&lt;std::pair&lt;cv::KeyPoint, int&gt; &gt;&amp; keypointsIN, std::vector&lt;std::pair&lt;cv::KeyPoint, int&gt; &gt;&amp; keypointsTracked, std::vector&lt;unsigned char&gt;&amp; status, <span class="keywordtype">int</span> THR_FB = 20);</div>
+<div class="line"><a name="l00103"></a><span class="lineno">  103</span>&#160;cv::Point2f rotate(cv::Point2f p, <span class="keywordtype">float</span> rad);</div>
+<div class="line"><a name="l00104"></a><span class="lineno">  104</span>&#160;<span class="preprocessor">#endif // CMT_H</span></div>
+<div class="line"><a name="l00105"></a><span class="lineno">  105</span>&#160;</div>
+<div class="line"><a name="l00106"></a><span class="lineno">  106</span>&#160;</div>
 </div><!-- fragment --></div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
-Generated on Tue Jun 17 2014 21:52:19 for icub-contrib by &#160;<a href="http://www.doxygen.org/index.html">
+Generated on Wed Jun 18 2014 12:03:19 for icub-contrib by &#160;<a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/>
 </a> 1.8.7
 </small></address>
