@@ -243,7 +243,7 @@ public:
                     cv::line(imgMat,tracker->bottomRight,tracker->bottomLeft,cv::Scalar(255,0,0),2);
                     cv::line(imgMat,tracker->bottomLeft,tracker->topLeft,cv::Scalar(255,0,0),2);
 
-                    for (size_t i=0; i<tracker->trackedKeypoints.size(); i++)
+                    for (size_t i=0; i<tracker->trackedKeypoints.size(); i++) 
                         cv::circle(imgMat,tracker->trackedKeypoints[i].first.pt,3,cv::Scalar(0,255,0));
                 }
             }            
