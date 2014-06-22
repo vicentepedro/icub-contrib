@@ -18,11 +18,52 @@
 /**
 \defgroup icub_funnyPostures funnyPostures
 
-A simple module that makes use of the cartesian interface
-to put the iCub in ... funny postures upon tactile detection.
+A simple module that makes use of the cartesian and gaze 
+interfaces to put the iCub in ... funny postures upon tactile 
+detection. 
 
-\section tested_os_sec Tested OS
-Windows, Linux
+\section intro_sec Description 
+This module obtains tactile input from the awareTouch module and 
+generates specific robot gestures as response. Optionally, this 
+module can interact with the IOL framework to avoid generating 
+postures while a IOL action is currently being executed. 
+ 
+\section lib_sec Libraries 
+- YARP.
+- cartesian and gaze I/F's. 
+- ctrlLib. 
+
+\section parameters_sec Parameters
+--name \e name
+- select the module stem-name.
+ 
+--robot \e robot
+- select the robot name to connect to. 
+ 
+--context \e context 
+- select the module context. 
+ 
+--from \e file 
+- select the configuration file containing the emotions 
+  definitions.
+
+\section portsc_sec Ports Created 
+
+\e /funnyPostures/emotions/raw to be connected to the robot 
+   emotions port to control the emotions.
+ 
+\e /funnyPostures/iol/status:rpc to be connected to the IOL 
+   status port to know whether any ongoing action is currently
+   being performed.
+ 
+\e /funnyPostures/iol/human:rpc to be connected to the IOL input 
+   port to enable/disable attention and send speech commands.
+ 
+\e /funnyPostured/rpc to be connected to the awareTouch module 
+   port to receive currently detected tactile input. Further,
+   the command \e "home" can be issued too.
+ 
+tested_os_sec Tested OS Windows, Linux 
 
 \author Ugo Pattacini
 */
