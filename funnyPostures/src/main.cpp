@@ -110,7 +110,7 @@ protected:
     Port emotionsPort;
 
     /*********************************************/
-    void handHelper(IPositionControl *iposs, const Vector &poss)
+    void handHelper(const string &type, const Vector &poss)
     {
         Vector vels(9,0.0);
         vels[0]=80.0;
@@ -123,9 +123,23 @@ protected:
         vels[7]=80.0;
         vels[8]=200.0;
 
+        IControlMode2    *imode;
+        IPositionControl *iposs;
+        if (type=="left")
+        {
+            drvArmL.view(imode);
+            drvArmL.view(iposs);
+        }
+        else
+        {
+            drvArmR.view(imode);
+            drvArmR.view(iposs);
+        }
+
         int i0=nEncs-poss.length();
         for (int i=i0; i<nEncs; i++)
         {
+            imode->setControlMode(i,VOCAB_CM_POSITION);
             iposs->setRefAcceleration(i,1e9);
             iposs->setRefSpeed(i,vels[i-i0]);
             iposs->positionMove(i,poss[i-i0]);
@@ -133,17 +147,17 @@ protected:
     }
 
     /*********************************************/
-    void openHand(IPositionControl *iposs)
+    void openHand(const string &type)
     {
         Vector poss(9,0.0);
         poss[0]=20.0;
 
         printf("open hand\n");
-        handHelper(iposs,poss);
+        handHelper(type,poss);
     }
 
     /*********************************************/
-    void closeHand(IPositionControl *iposs)
+    void closeHand(const string &type)
     {
         Vector poss(9,0.0);
         poss[0]=40.0;
@@ -157,11 +171,11 @@ protected:
         poss[8]=200.0;
 
         printf("open hand\n");
-        handHelper(iposs,poss);
+        handHelper(type,poss);
     }
 
     /*********************************************/
-    void karateHand(IPositionControl *iposs)
+    void karateHand(const string &type)
     {
         Vector poss(9,0.0);
         poss[0]=60.0;
@@ -169,11 +183,11 @@ protected:
         poss[2]=50.0;
 
         printf("karate hand\n");
-        handHelper(iposs,poss);
+        handHelper(type,poss);
     }
 
     /*********************************************/
-    void pointHand(IPositionControl *iposs)
+    void pointHand(const string &type)
     {
         Vector poss(9,0.0);
         poss[0]=40.0;
@@ -187,7 +201,7 @@ protected:
         poss[8]=200.0;
 
         printf("point hand\n");
-        handHelper(iposs,poss);
+        handHelper(type,poss);
     }
 
     /*********************************************/
@@ -319,8 +333,8 @@ protected:
             targetL(1,3)=-0.2;
             targetR(1,3)=0.2;
 
-            openHand(ipossL);
-            openHand(ipossR);
+            openHand("left");
+            openHand("right");
 
             postureHelper("position",targetL,targetR,targetG);
             return true;
@@ -339,8 +353,8 @@ protected:
             emotion(type);
             say("that hurt");
 
-            karateHand(ipossL);
-            karateHand(ipossR);
+            karateHand("left");
+            karateHand("right");
             
             targetL(2,0)=targetR(2,0)=1.0;
             targetL(0,1)=targetR(0,1)=-1.0;
@@ -397,8 +411,8 @@ protected:
 
                 targetG[1]=-90.0;
 
-                openHand(ipossL);
-                openHand(ipossR);
+                openHand("left");
+                openHand("right");
 
                 Vector lim(3,0.0); lim[0]=-5.0;                
                 postureHelper("orientation",targetL,targetR,targetG,lim);
@@ -434,8 +448,8 @@ protected:
                 targetG[0]=40.0;
                 targetG[1]=10.0;
 
-                pointHand(ipossL);
-                openHand(ipossR);
+                pointHand("left");
+                openHand("right");
             }
             else
             {
@@ -474,8 +488,8 @@ protected:
                     targetG[1]=10.0;
                 }
 
-                pointHand(ipossR);
-                openHand(ipossL);
+                pointHand("right");
+                openHand("left");
             }
 
             emotion("you");
@@ -504,8 +518,8 @@ protected:
             targetL=axis2dcm(r)*targetL;
             targetR=axis2dcm(r)*targetR;
 
-            closeHand(ipossL);
-            closeHand(ipossR);
+            closeHand("left");
+            closeHand("right");
 
             double roll=0.0;
             if (part=="left_arm")

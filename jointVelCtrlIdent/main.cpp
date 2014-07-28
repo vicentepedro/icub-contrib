@@ -153,6 +153,7 @@ protected:
     double pid_Kd;
 
     PolyDriver        drv;
+    IControlMode2    *imod;
     IControlLimits   *ilim;
     IEncoders        *ienc;
     IPositionControl *ipos;
@@ -225,6 +226,7 @@ public:
         if (!drv.open(options))
             return false;
 
+        drv.view(imod);
         drv.view(ilim);
         drv.view(ienc);
         drv.view(ipos);
@@ -263,6 +265,7 @@ public:
         fb1=(min+max)/2.0+offs;
 
         cnt=0;
+        imod->setControlMode(joint,VOCAB_CM_VELOCITY);
         goToStartingPos();
 
         port.open(("/"+name+":o").c_str());
@@ -305,6 +308,7 @@ public:
     void goToStartingPos()
     {
         ivel->stop(joint);
+        imod->setControlMode(joint,VOCAB_CM_POSITION);
         ipos->setRefSpeed(joint,20.0);
         ipos->positionMove(joint,fb0);
 
@@ -318,6 +322,7 @@ public:
         }
 
         ipos->stop(joint);
+        imod->setControlMode(joint,VOCAB_CM_VELOCITY);
         ivel->setRefAcceleration(joint,1e9);
         velEst.reset();
     }
@@ -331,7 +336,7 @@ public:
         double t=Time::now()-t0;
         if (t>T)
         {
-            goToStartingPos();            
+            goToStartingPos();
             t0=Time::now();
             t=0.0;
             cnt++;
