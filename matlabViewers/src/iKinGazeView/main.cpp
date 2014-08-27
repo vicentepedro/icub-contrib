@@ -399,8 +399,7 @@ public:
 
                 if (!(xd==xdOld))
                 {
-                    Vector &xdP=port_xd->prepare();
-                    xdP=xd;
+                    port_xd->prepare()=xd;
                     port_xd->write();
                 }
 

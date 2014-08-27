@@ -104,9 +104,9 @@ protected:
 
     map<string,Bottle> emotionsRaw;
 
-    Port rpcPort;
-    Port iolPortStatus;
-    Port iolPortHuman;
+    RpcServer rpcPort;
+    RpcClient iolPortStatus;
+    RpcClient iolPortHuman;
     Port emotionsPort;
 
     /*********************************************/

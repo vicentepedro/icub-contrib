@@ -104,8 +104,8 @@ protected:
     bool doCMT;
 
     BufferedPort<ImageOf<PixelBgr> > imgInPort;
-    Port                             imgOutPort;
-    Port                             dataOutPort;
+    BufferedPort<ImageOf<PixelBgr> > imgOutPort;
+    BufferedPort<Bottle>             dataOutPort;
     RpcServer                        rpcPort;
 
 public:
@@ -224,7 +224,9 @@ public:
             {
                 if (dataOutPort.getOutputCount()>0)
                 {
-                    Bottle data;                    
+                    Bottle &data=dataOutPort.prepare();
+                    data.clear();
+
                     data.addInt((int)tracker->topLeft.x);
                     data.addInt((int)tracker->topLeft.y);
                     data.addInt((int)tracker->topRight.x);
@@ -233,7 +235,8 @@ public:
                     data.addInt((int)tracker->bottomRight.y);
                     data.addInt((int)tracker->bottomLeft.x);
                     data.addInt((int)tracker->bottomLeft.y);
-                    dataOutPort.write(data);
+
+                    dataOutPort.write();
                 }
 
                 if (imgOutPort.getOutputCount()>0)
@@ -250,7 +253,10 @@ public:
         }
 
         if (imgOutPort.getOutputCount()>0)
-            imgOutPort.write(*img);
+        {
+            imgOutPort.prepare()=*img;
+            imgOutPort.write();
+        }
 
         mutex.unlock();
         return true;
