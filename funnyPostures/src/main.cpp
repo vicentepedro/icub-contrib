@@ -327,11 +327,11 @@ protected:
             targetL(2,1)=targetR(2,1)=-1.0;
             targetL(1,2)=targetR(1,2)=-1.0;
 
-            targetL(0,3)=targetR(0,3)=-0.3;
-            targetL(2,3)=targetR(2,3)=0.05;
+            targetL(0,3)=targetR(0,3)=-0.25;
+            targetL(2,3)=targetR(2,3)=0.1;
 
-            targetL(1,3)=-0.2;
-            targetR(1,3)=0.2;
+            targetL(1,3)=-0.27;
+            targetR(1,3)=0.27;
 
             openHand("left");
             openHand("right");
