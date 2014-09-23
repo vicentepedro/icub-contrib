@@ -60,8 +60,8 @@ postures while a IOL action is currently being executed.
    port to enable/disable attention and send speech commands.
  
 \e /funnyPostured/rpc to be connected to the awareTouch module 
-   port to receive currently detected tactile input. Further,
-   the command \e "home" can be issued too.
+   port to receive currently detected tactile input. Tactile
+   inputs handled by this module are: "caress", "poke", "pinch".
  
 tested_os_sec Tested OS Windows, Linux 
 
