@@ -558,6 +558,8 @@ bool runViewer(Engine *ep, const bool headV2)
 
 int main(int argc, char *argv[])
 {
+    Network yarp;
+
     ResourceFinder rf;
     rf.setVerbose(true);
     rf.setDefaultContext("matlabViewers");
@@ -573,15 +575,12 @@ int main(int argc, char *argv[])
         cout << "\t--visibility switch: set MATLAB session visibility on/off (default off)"    << endl;
 
         return 0;
-    }
-
-    Network yarp;
+    }    
 
     if (!yarp.checkNetwork())
         return -1;
 
     GatewayModule mod;
-
     return mod.runModule(rf);
 }
 
