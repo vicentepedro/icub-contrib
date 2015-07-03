@@ -1,0 +1,67 @@
+<application>
+<name>Test-3D-Points</name>
+        <dependencies>
+            <port>/icub/camcalib/left/out</port>
+            <port>/icub/camcalib/right/out</port>
+            <port>/iKinGazeCtrl/rpc</port>
+        </dependencies>
+      
+        <module>
+           <name>SFM</name>
+           <node>console</node>
+        </module>
+
+        <module>
+           <name>test-3d-points</name>
+           <node>console</node>
+        </module>
+
+        <module>
+           <name>yarpview</name>
+           <parameters>--name /disp --x 0 --y 0 --out /disp/out --p 33</parameters>
+           <node>console</node>
+        </module>
+
+        <connection>
+            <from>/icub/camcalib/left/out</from>
+            <to>/SFM/left:i</to>
+            <protocol>tcp</protocol>
+        </connection>
+
+        <connection>
+            <from>/icub/camcalib/right/out</from>
+            <to>/SFM/right:i</to>
+            <protocol>tcp</protocol>
+        </connection>
+
+        <connection>
+            <from>/SFM/disp:o</from>
+            <to>/test-3d-points/disp:i</to>
+            <protocol>tcp</protocol>
+        </connection>
+
+        <connection>
+            <from>/test-3d-points/SFM:rpc</from>
+            <to>/SFM/rpc</to>
+            <protocol>tcp</protocol>
+        </connection>
+
+        <connection>
+            <from>/icub/camcalib/left/out</from>
+            <to>/test-3d-points/img:i</to>
+            <protocol>tcp</protocol>
+        </connection>
+
+        <connection>
+            <from>/test-3d-points/disp:o</from>
+            <to>/disp</to>
+            <protocol>tcp</protocol>
+        </connection>
+
+        <connection>
+            <from>/disp/out</from>
+            <to>/test-3d-points/contour:i</to>
+            <protocol>tcp</protocol>
+        </connection>
+</application>
+
