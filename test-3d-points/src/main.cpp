@@ -172,7 +172,7 @@ public:
                 if (points.size()>0)
                 {
                     ofstream fout;
-                    fout.open((homeContextPath+"/test-3d-points.off"));
+                    fout.open((homeContextPath+"/test-3d-points.off").c_str());
                     if (fout.is_open())
                     {
                         fout<<"COFF"<<endl;
