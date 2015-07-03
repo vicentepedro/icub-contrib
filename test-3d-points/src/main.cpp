@@ -16,6 +16,7 @@
 */
 
 #include <vector>
+#include <algorithm>
 #include <string>
 #include <fstream>
 #include <iomanip>
@@ -78,7 +79,7 @@ public:
         attach(portRpc);
 
         homeContextPath=rf.getHomeContextPath().c_str();
-        downsampling=rf.check("downsampling",Value(0)).asInt();
+        downsampling=std::max(1,rf.check("downsampling",Value(1)).asInt());
         go=false;
 
         return true;

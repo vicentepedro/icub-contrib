@@ -13,7 +13,7 @@
 
         <module>
            <name>test-3d-points</name>
-           <parameters>--downsampling 0</parameters>
+           <parameters>--downsampling 1</parameters>
            <node>console</node>
         </module>
 
