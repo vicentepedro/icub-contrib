@@ -147,20 +147,25 @@ public:
             if (go)
             {
                 vector<Vector> points;
-                for (int x=rect.x; x<rect.x+rect.width; x+=downsampling)
+
+                Bottle cmd,reply;
+                cmd.addString("Rect");
+                cmd.addInt(rect.x);     cmd.addInt(rect.y);
+                cmd.addInt(rect.width); cmd.addInt(rect.height);
+                cmd.addInt(downsampling);
+                if (portSFM.write(cmd,reply))
                 {
-                    for (int y=rect.y; y<rect.y+rect.height; y+=downsampling)
+                    int idx=0;
+                    for (int x=rect.x; x<rect.x+rect.width; x+=downsampling)
                     {
-                        if (cv::pointPolygonTest(contour,cv::Point2f((float)x,(float)y),false)>0.0)
+                        for (int y=rect.y; y<rect.y+rect.height; y+=downsampling)
                         {
-                            Bottle cmd,reply;
-                            cmd.addInt(x); cmd.addInt(y);
-                            if (portSFM.write(cmd,reply))
+                            if (cv::pointPolygonTest(contour,cv::Point2f((float)x,(float)y),false)>0.0)
                             {
                                 Vector point(6,0.0);
-                                point[0]=reply.get(0).asDouble();
-                                point[1]=reply.get(1).asDouble();
-                                point[2]=reply.get(2).asDouble();
+                                point[0]=reply.get(idx+0).asDouble();
+                                point[1]=reply.get(idx+1).asDouble();
+                                point[2]=reply.get(idx+2).asDouble();
                                 if (norm(point)>0.0)
                                 {
                                     PixelRgb px=imgIn->pixel(x,y);
@@ -171,6 +176,8 @@ public:
                                     points.push_back(point);
                                 }
                             }
+
+                            idx++;
                         }
                     }
                 }
