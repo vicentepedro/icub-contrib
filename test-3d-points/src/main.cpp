@@ -38,6 +38,7 @@ class TestModule : public RFModule, public PortReader
 protected:
     vector<cv::Point> contour;
     string homeContextPath;
+    int downsampling;
     Mutex mutex;    
     bool go;
 
@@ -77,6 +78,7 @@ public:
         attach(portRpc);
 
         homeContextPath=rf.getHomeContextPath().c_str();
+        downsampling=rf.check("downsampling",Value(0)).asInt();
         go=false;
 
         return true;
@@ -144,9 +146,9 @@ public:
             if (go)
             {
                 vector<Vector> points;
-                for (int x=rect.x; x<rect.x+rect.width; x++)
+                for (int x=rect.x; x<rect.x+rect.width; x+=downsampling)
                 {
-                    for (int y=rect.y; y<rect.y+rect.height; y++)
+                    for (int y=rect.y; y<rect.y+rect.height; y+=downsampling)
                     {
                         if (cv::pointPolygonTest(contour,cv::Point2f((float)x,(float)y),false)>0.0)
                         {
