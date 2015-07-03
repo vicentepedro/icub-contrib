@@ -114,10 +114,10 @@ Linux, Windows
 \author Ugo Pattacini
 */ 
 
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 
-#include <cv.h>
+#include <opencv2/opencv.hpp>
 #include <TLD.h>
 
 #include <yarp/os/all.h>
@@ -388,14 +388,14 @@ public:
             return true;
 
         mutex.lock();
-        cv::Mat imgMat((IplImage*)img->getIplImage());
+        cv::Mat imgMat=cv::cvarrToMat((IplImage*)img->getIplImage());
 
         if (initDetectorCascade)
         {
             ImageOf<PixelMono> imgMono;
             imgMono.resize(img->width(),img->height());
 
-            cv::Mat imgMonoMat((IplImage*)imgMono.getIplImage());
+            cv::Mat imgMonoMat=cv::cvarrToMat((IplImage*)imgMono.getIplImage());
             cv::cvtColor(imgMat,imgMonoMat,CV_BGR2GRAY);
 
             tracker->detectorCascade->imgWidth=imgMonoMat.cols;
@@ -410,7 +410,7 @@ public:
             ImageOf<PixelMono> imgMono;
             imgMono.resize(img->width(),img->height());
 
-            cv::Mat imgMonoMat((IplImage*)imgMono.getIplImage());
+            cv::Mat imgMonoMat=cv::cvarrToMat((IplImage*)imgMono.getIplImage());
             cv::cvtColor(imgMat,imgMonoMat,CV_BGR2GRAY);
 
             tracker->selectObject(imgMonoMat,&boundingBox);
