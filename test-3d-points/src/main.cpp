@@ -132,18 +132,21 @@ public:
         cv::Mat imgDispOutMat=cv::cvarrToMat((IplImage*)imgDispOut.getIplImage());
         cv::cvtColor(imgDispInMat,imgDispOutMat,CV_GRAY2RGB);
 
-        if (contour.size()>2)
+        if (contour.size()>0)
         {
             vector<vector<cv::Point> > contours;
             contours.push_back(contour);
-            cv::drawContours(imgDispOutMat,contours,0,cv::Scalar(255,25,0),2);
+            cv::drawContours(imgDispOutMat,contours,0,cv::Scalar(255,255,0));
+
+            cv::Rect rect=cv::boundingRect(contour);
+            cv::rectangle(imgDispOutMat,rect,cv::Scalar(255,50,0));
 
             if (go)
             {
                 vector<Vector> points;
-                for (int x=0; x<imgDispOut.width(); x++)
+                for (int x=rect.x; x<rect.x+rect.width; x++)
                 {
-                    for (int y=0; y<imgDispOut.height(); y++)
+                    for (int y=rect.y; y<rect.y+rect.height; y++)
                     {
                         if (cv::pointPolygonTest(contour,cv::Point2f((float)x,(float)y),false)>0.0)
                         {
@@ -180,7 +183,7 @@ public:
                         fout<<endl;
                         for (size_t i=0; i<points.size(); i++)
                         {
-                            fout<<points[i].subVector(0,2).toString(1,4).c_str()<<" "<<
+                            fout<<points[i].subVector(0,2).toString(3,4).c_str()<<" "<<
                                   points[i].subVector(3,5).toString(0,3).c_str()<<endl;
                         }
                         fout<<endl;
