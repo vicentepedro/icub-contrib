@@ -33,8 +33,9 @@ using namespace yarp::math;
 
 
 /*******************************************************************************/
-class TestModule : public RFModule
+class TestModule : public RFModule, public PortReader
 {
+protected:
     vector<cv::Point> contour;
     string homeContextPath;
     Mutex mutex;    
@@ -43,27 +44,23 @@ class TestModule : public RFModule
     BufferedPort<ImageOf<PixelMono> > portDispIn;
     BufferedPort<ImageOf<PixelRgb> > portDispOut;
     BufferedPort<ImageOf<PixelRgb> > portImgIn;
+    Port portContour;
     RpcClient portSFM;
-
-    ImageOf<PixelRgb imgIn;
+    RpcServer portRpc;
 
     /*******************************************************************************/
-    class ContourPort : public BufferedPort<Bottle>
+    bool read(ConnectionReader &connection)
     {
-        /*******************************************************************************/
-        void onRead(Bottle &b)
+        Bottle data; data.read(connection);
+        if (data.size()>=2)
         {
-            if (b.size()>=2)
-            {
-                LockGuard lg(mutex); 
-                cv::Point point(b.get(0).asInt(),b.get(1).asInt());
-                contour.push_back(point);
-            }
+            LockGuard lg(mutex);
+            cv::Point point(data.get(0).asInt(),data.get(1).asInt());
+            contour.push_back(point);
         }
-    public:
-        /*******************************************************************************/
-        PointPort() { useCallback(); }
-    } portContour;
+
+        return true;
+    }
 
 public:
     /*******************************************************************************/
@@ -74,6 +71,10 @@ public:
         portImgIn.open("/test-3d-points/img:i");
         portContour.open("/test-3d-points/contour:i");
         portSFM.open("/test-3d-points/SFM:rpc");
+        portRpc.open("/test-3d-points/rpc");
+
+        portContour.setReader(*this);
+        attach(portRpc);
 
         homeContextPath=rf.getHomeContextPath().c_str();
         go=false;
@@ -89,6 +90,7 @@ public:
         portImgIn.interrupt();
         portContour.interrupt();
         portSFM.interrupt();
+        portRpc.interrupt();
         return true;
     }
 
@@ -100,6 +102,7 @@ public:
         portImgIn.close();
         portContour.close();
         portSFM.close();
+        portRpc.close();
         return true;
     }
 
@@ -116,7 +119,7 @@ public:
         if (imgDispIn==NULL)
             return false;
 
-        ImageOf<PixelMono> *imgIn=portImgIn.read();
+        ImageOf<PixelRgb> *imgIn=portImgIn.read();
         if (imgIn==NULL)
             return false;
 
@@ -138,11 +141,11 @@ public:
             if (go)
             {
                 vector<Vector> points;
-                for (int x=0; x<imgDispOutMat.width(); x++)
+                for (int x=0; x<imgDispOut.width(); x++)
                 {
-                    for (int y=0; y<imgDispOutMat.height(); y++)
+                    for (int y=0; y<imgDispOut.height(); y++)
                     {
-                        if (cv::pointPolygonTest(contour,cv::Point2f(x,y),false)>0.0)
+                        if (cv::pointPolygonTest(contour,cv::Point2f((float)x,(float)y),false)>0.0)
                         {
                             Bottle cmd,reply;
                             cmd.addInt(x); cmd.addInt(y);
@@ -169,7 +172,8 @@ public:
                 if (points.size()>0)
                 {
                     ofstream fout;
-                    if (fout.open((homeContextPath+"/test-3d-points.off")))
+                    fout.open((homeContextPath+"/test-3d-points.off"));
+                    if (fout.is_open())
                     {
                         fout<<"COFF"<<endl;
                         fout<<points.size()<<" 0 0"<<endl;
@@ -188,7 +192,7 @@ public:
             }
         }
 
-        portOut.write();
+        portDispOut.write();
         return true;
     }
 
@@ -225,7 +229,7 @@ public:
 
 
 /*******************************************************************************/
-int main(int argc, char *argv)
+int main(int argc,char *argv[])
 {   
     Network yarp;
     if (!yarp.checkNetwork())
@@ -234,10 +238,10 @@ int main(int argc, char *argv)
         return -1;
     }
 
-    TestModule test;
+    TestModule mod;
     ResourceFinder rf;
     rf.setDefaultContext("test-3d-points");
     rf.configure(argc,argv);
-    return test.runModule(rf);
+    return mod.runModule(rf);
 }
 
