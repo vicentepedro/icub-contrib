@@ -13,13 +13,13 @@
 
         <module>
            <name>test-3d-points</name>
-           <parameters>--downsampling 1 --distance 0.004</parameters>
+           <parameters>--downsampling 1 --spatial_distance 0.004 --color_distance 6</parameters>
            <node>console</node>
         </module>
 
         <module>
            <name>yarpview</name>
-           <parameters>--name /disp --x 0 --y 0 --out /disp/out --p 33</parameters>
+           <parameters>--name /disp --out /disp/out --p 33</parameters>
            <node>console</node>
         </module>
 

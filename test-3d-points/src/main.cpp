@@ -41,7 +41,8 @@ protected:
     vector<cv::Point> floodPoints;
     string homeContextPath;
     int downsampling;
-    double dist;
+    double spatial_distance;
+    int color_distance;
     Mutex mutex;    
     bool go,flood3d,flood;
 
@@ -82,7 +83,8 @@ public:
 
         homeContextPath=rf.getHomeContextPath().c_str();
         downsampling=std::max(1,rf.check("downsampling",Value(1)).asInt());
-        dist=rf.check("distance",Value(0.004)).asDouble();
+        spatial_distance=rf.check("spatial_distance",Value(0.004)).asDouble();
+        color_distance=rf.check("color_distance",Value(6)).asInt();
         go=flood3d=flood=false;
 
         return true;
@@ -196,7 +198,7 @@ public:
                     cmd.addString("Flood3D");
                     cmd.addInt(contour.back().x);
                     cmd.addInt(contour.back().y);
-                    cmd.addDouble(dist);
+                    cmd.addDouble(spatial_distance);
                     if (portSFM.write(cmd,reply))
                     {
                         for (int i=0; i<reply.size(); i+=5)
@@ -222,7 +224,7 @@ public:
                 {
                     cv::Point seed(contour.back().x,contour.back().y);
                     PixelMono c=imgDispIn->pixel(seed.x,seed.y);
-                    cv::Scalar delta(6);
+                    cv::Scalar delta(color_distance);
                     cv::floodFill(imgDispInMat,seed,cv::Scalar(255),NULL,delta,delta,4|cv::FLOODFILL_FIXED_RANGE);
                     cv::cvtColor(imgDispInMat,imgDispOutMat,CV_GRAY2RGB);
                 }
@@ -289,7 +291,7 @@ public:
                 else if (cmd=="flood3d")
                 {
                     if (command.size()>=2)
-                        dist=command.get(1).asDouble();
+                        spatial_distance=command.get(1).asDouble();
 
                     contour.clear();
                     floodPoints.clear();
@@ -300,6 +302,9 @@ public:
         }
         else if (cmd=="flood")
         {
+            if (command.size()>=2)
+                color_distance=command.get(1).asInt();
+
             contour.clear();
             floodPoints.clear();
             flood=true;
