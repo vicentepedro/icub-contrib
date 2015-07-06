@@ -200,23 +200,21 @@ public:
                     if (portSFM.write(cmd,reply))
                     {
                         for (int i=0; i<reply.size(); i+=5)
-                        {
+                        {                            
+                            int x=reply.get(i+0).asInt();
+                            int y=reply.get(i+1).asInt();
+                            PixelRgb px=imgIn->pixel(x,y);
+
                             Vector point(6,0.0);
                             point[0]=reply.get(i+2).asDouble();
                             point[1]=reply.get(i+3).asDouble();
-                            point[2]=reply.get(i+4).asDouble();
-                            if (norm(point)>0.0)
-                            {
-                                int x=reply.get(i+0).asInt();
-                                int y=reply.get(i+1).asInt();
-                                PixelRgb px=imgIn->pixel(x,y);
-                                point[3]=px.r;
-                                point[4]=px.g;
-                                point[5]=px.b;
-                                points.push_back(point);
+                            point[2]=reply.get(i+4).asDouble();                            
+                            point[3]=px.r;
+                            point[4]=px.g;
+                            point[5]=px.b;
 
-                                floodPoints.push_back(cv::Point(x,y));
-                            }
+                            points.push_back(point);
+                            floodPoints.push_back(cv::Point(x,y));
                         }
                     }
                 }
