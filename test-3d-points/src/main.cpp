@@ -38,10 +38,12 @@ class TestModule : public RFModule, public PortReader
 {
 protected:
     vector<cv::Point> contour;
+    vector<cv::Point> floodPoints;
     string homeContextPath;
     int downsampling;
+    double dist;
     Mutex mutex;    
-    bool go;
+    bool go,flood;
 
     BufferedPort<ImageOf<PixelMono> > portDispIn;
     BufferedPort<ImageOf<PixelRgb> > portDispOut;
@@ -80,7 +82,8 @@ public:
 
         homeContextPath=rf.getHomeContextPath().c_str();
         downsampling=std::max(1,rf.check("downsampling",Value(1)).asInt());
-        go=false;
+        dist=rf.check("distance",Value(0.001)).asDouble();
+        go=flood=false;
 
         return true;
     }
@@ -135,6 +138,10 @@ public:
         cv::Mat imgDispOutMat=cv::cvarrToMat((IplImage*)imgDispOut.getIplImage());
         cv::cvtColor(imgDispInMat,imgDispOutMat,CV_GRAY2RGB);
 
+        PixelRgb color(255,255,0);
+        for (size_t i=0; i<floodPoints.size(); i++)
+            imgDispOut.pixel(floodPoints[i].x,floodPoints[i].y)=color;
+
         if (contour.size()>0)
         {
             vector<vector<cv::Point> > contours;
@@ -144,40 +151,71 @@ public:
             cv::Rect rect=cv::boundingRect(contour);
             cv::rectangle(imgDispOutMat,rect,cv::Scalar(255,50,0));
 
-            if (go)
+            if (go||flood)
             {
                 vector<Vector> points;
-
                 Bottle cmd,reply;
-                cmd.addString("Rect");
-                cmd.addInt(rect.x);     cmd.addInt(rect.y);
-                cmd.addInt(rect.width); cmd.addInt(rect.height);
-                cmd.addInt(downsampling);
-                if (portSFM.write(cmd,reply))
-                {
-                    int idx=0;
-                    for (int x=rect.x; x<rect.x+rect.width; x+=downsampling)
+
+                if (go)
+                {                    
+                    cmd.addString("Rect");
+                    cmd.addInt(rect.x);     cmd.addInt(rect.y);
+                    cmd.addInt(rect.width); cmd.addInt(rect.height);
+                    cmd.addInt(downsampling);
+                    if (portSFM.write(cmd,reply))
                     {
-                        for (int y=rect.y; y<rect.y+rect.height; y+=downsampling)
+                        int idx=0;
+                        for (int x=rect.x; x<rect.x+rect.width; x+=downsampling)
                         {
-                            if (cv::pointPolygonTest(contour,cv::Point2f((float)x,(float)y),false)>0.0)
+                            for (int y=rect.y; y<rect.y+rect.height; y+=downsampling)
                             {
-                                Vector point(6,0.0);
-                                point[0]=reply.get(idx+0).asDouble();
-                                point[1]=reply.get(idx+1).asDouble();
-                                point[2]=reply.get(idx+2).asDouble();
-                                if (norm(point)>0.0)
+                                if (cv::pointPolygonTest(contour,cv::Point2f((float)x,(float)y),false)>0.0)
                                 {
-                                    PixelRgb px=imgIn->pixel(x,y);
-                                    point[3]=px.r;
-                                    point[4]=px.g;
-                                    point[5]=px.b;
+                                    Vector point(6,0.0);
+                                    point[0]=reply.get(idx+0).asDouble();
+                                    point[1]=reply.get(idx+1).asDouble();
+                                    point[2]=reply.get(idx+2).asDouble();
+                                    if (norm(point)>0.0)
+                                    {
+                                        PixelRgb px=imgIn->pixel(x,y);
+                                        point[3]=px.r;
+                                        point[4]=px.g;
+                                        point[5]=px.b;
 
-                                    points.push_back(point);
+                                        points.push_back(point);
+                                    }
                                 }
-                            }
 
-                            idx+=3;
+                                idx+=3;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    cmd.addString("Flood");
+                    cmd.addInt(contour.back().x);
+                    cmd.addInt(contour.back().y);
+                    cmd.addDouble(dist);
+                    if (portSFM.write(cmd,reply))
+                    {
+                        for (int i=0; i<reply.size(); i+=6)
+                        {
+                            Vector point(6,0.0);
+                            point[0]=reply.get(i+2).asDouble();
+                            point[1]=reply.get(i+3).asDouble();
+                            point[2]=reply.get(i+4).asDouble();
+                            if (norm(point)>0.0)
+                            {
+                                PixelRgb px=imgIn->pixel(x,y);
+                                point[3]=px.r;
+                                point[4]=px.g;
+                                point[5]=px.b;
+                                points.push_back(point);
+
+                                floodPoints.push_back(cv::Point(reply.get(i+0).asInt(),
+                                                                reply.get(i+1).asInt()));
+                            }
                         }
                     }
                 }
@@ -201,7 +239,7 @@ public:
                     fout.close();
                 }
 
-                go=false;
+                go=flood=false;
             }
         }
 
@@ -220,18 +258,35 @@ public:
         {
             LockGuard lg(mutex);
             contour.clear();
+            floodPoints.clear();
+            go=flood=false;
             reply.addVocab(ack);
         }
-        else if (cmd=="go")
+        else if ((cmd=="go") || (cmd=="flood"))
         {
-            LockGuard lg(mutex);
-            if ((contour.size()>2) && (portSFM.getOutputCount()>0))
-            {
-                go=true;
-                reply.addVocab(ack);
-            }
-            else
+            if (portSFM.getOutputCount()==0)
                 reply.addVocab(nack);
+            else
+            {
+                LockGuard lg(mutex);
+                if (cmd=="go")
+                {
+                    if (contour.size()>2)
+                    {
+                        go=true;
+                        reply.addVocab(ack);
+                    }
+                    else
+                        reply.addVocab(nack);
+                }
+                else
+                {
+                    contour.clear();
+                    floodPoints.clear();
+                    flood=true;
+                    reply.addVocab(ack);
+                }
+            }
         }
         else
             RFModule::respond(command,reply);
