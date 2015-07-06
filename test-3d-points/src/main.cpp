@@ -282,6 +282,7 @@ public:
                 {
                     if (contour.size()>2)
                     {
+                        flood=false;
                         go=true;
                         reply.addVocab(ack);
                     }
@@ -295,6 +296,7 @@ public:
 
                     contour.clear();
                     floodPoints.clear();
+                    flood=false;
                     flood3d=true;
                     reply.addVocab(ack);
                 }
