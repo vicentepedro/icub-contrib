@@ -199,7 +199,7 @@ public:
                     cmd.addDouble(dist);
                     if (portSFM.write(cmd,reply))
                     {
-                        for (int i=0; i<reply.size(); i+=6)
+                        for (int i=0; i<reply.size(); i+=5)
                         {
                             Vector point(6,0.0);
                             point[0]=reply.get(i+2).asDouble();
