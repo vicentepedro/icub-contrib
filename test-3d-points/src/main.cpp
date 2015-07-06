@@ -222,9 +222,8 @@ public:
                 {
                     cv::Point seed(contour.back().x,contour.back().y);
                     PixelMono c=imgDispIn->pixel(seed.x,seed.y);
-                    cv::Scalar loDiff(std::max((int)c-20,0));
-                    cv::Scalar upDiff(std::min((int)c+20,255));
-                    cv::floodFill(imgDispInMat,seed,cv::Scalar(255),NULL,loDiff,upDiff,8|cv::FLOODFILL_FIXED_RANGE);
+                    cv::Scalar delta(6);
+                    cv::floodFill(imgDispInMat,seed,cv::Scalar(255),NULL,delta,delta,4|cv::FLOODFILL_FIXED_RANGE);
                     cv::cvtColor(imgDispInMat,imgDispOutMat,CV_GRAY2RGB);
                 }
 
