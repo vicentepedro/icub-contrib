@@ -82,7 +82,7 @@ public:
 
         homeContextPath=rf.getHomeContextPath().c_str();
         downsampling=std::max(1,rf.check("downsampling",Value(1)).asInt());
-        dist=rf.check("distance",Value(0.001)).asDouble();
+        dist=rf.check("distance",Value(0.004)).asDouble();
         go=flood=false;
 
         return true;
@@ -280,6 +280,9 @@ public:
                 }
                 else
                 {
+                    if (command.size()>=2)
+                        dist=command.get(1).asDouble();
+
                     contour.clear();
                     floodPoints.clear();
                     flood=true;

@@ -13,7 +13,7 @@
 
         <module>
            <name>test-3d-points</name>
-           <parameters>--downsampling 1</parameters>
+           <parameters>--downsampling 1 --distance 0.004</parameters>
            <node>console</node>
         </module>
 
