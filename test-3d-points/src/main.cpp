@@ -207,14 +207,15 @@ public:
                             point[2]=reply.get(i+4).asDouble();
                             if (norm(point)>0.0)
                             {
+                                int x=reply.get(i+0).asInt();
+                                int y=reply.get(i+1).asInt();
                                 PixelRgb px=imgIn->pixel(x,y);
                                 point[3]=px.r;
                                 point[4]=px.g;
                                 point[5]=px.b;
                                 points.push_back(point);
 
-                                floodPoints.push_back(cv::Point(reply.get(i+0).asInt(),
-                                                                reply.get(i+1).asInt()));
+                                floodPoints.push_back(cv::Point(x,y));
                             }
                         }
                     }
