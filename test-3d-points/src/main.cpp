@@ -43,7 +43,7 @@ protected:
     int downsampling;
     double dist;
     Mutex mutex;    
-    bool go,flood;
+    bool go,flood3d,flood;
 
     BufferedPort<ImageOf<PixelMono> > portDispIn;
     BufferedPort<ImageOf<PixelRgb> > portDispOut;
@@ -83,7 +83,7 @@ public:
         homeContextPath=rf.getHomeContextPath().c_str();
         downsampling=std::max(1,rf.check("downsampling",Value(1)).asInt());
         dist=rf.check("distance",Value(0.004)).asDouble();
-        go=flood=false;
+        go=flood3d=flood=false;
 
         return true;
     }
@@ -151,7 +151,7 @@ public:
             cv::Rect rect=cv::boundingRect(contour);
             cv::rectangle(imgDispOutMat,rect,cv::Scalar(255,50,0));
 
-            if (go||flood)
+            if (go||flood3d||flood)
             {
                 vector<Vector> points;
                 Bottle cmd,reply;
@@ -191,7 +191,7 @@ public:
                         }
                     }
                 }
-                else
+                else if (flood3d)
                 {
                     cmd.addString("Flood3D");
                     cmd.addInt(contour.back().x);
@@ -218,6 +218,16 @@ public:
                         }
                     }
                 }
+                else if (flood)
+                {
+                    cv::Point seed(contour.back().x,contour.back().y);
+                    PixelMono c=imgDispIn->pixel(seed.x,seed.y);
+                    cv::Scalar loDiff(std::max(c,0));
+                    cv::Scalar upDiff(std::min(c,255));
+                    cv::floodFill(imgDispInMat,seed,Scalar(255),NULL,
+                                  loDiff,upDiff,8|FLOODFILL_FIXED_RANGE);
+                    cv::cvtColor(imgDispInMat,imgDispOutMat,CV_GRAY2RGB);
+                }
 
                 if (points.size()>0)
                 {
@@ -238,7 +248,7 @@ public:
                     fout.close();
                 }
 
-                go=flood=false;
+                go=flood3d=false;
             }
         }
 
@@ -258,10 +268,10 @@ public:
             LockGuard lg(mutex);
             contour.clear();
             floodPoints.clear();
-            go=flood=false;
+            go=flood3d=flood=false;
             reply.addVocab(ack);
         }
-        else if ((cmd=="go") || (cmd=="flood"))
+        else if ((cmd=="go") || (cmd=="flood3d"))
         {
             if (portSFM.getOutputCount()==0)
                 reply.addVocab(nack);
@@ -278,19 +288,26 @@ public:
                     else
                         reply.addVocab(nack);
                 }
-                else
+                else if (cmd=="flood3d")
                 {
                     if (command.size()>=2)
                         dist=command.get(1).asDouble();
 
                     contour.clear();
                     floodPoints.clear();
-                    flood=true;
+                    flood3d=true;
                     reply.addVocab(ack);
                 }
             }
         }
-        else
+        else if (cmd=="flood")
+        {
+            contour.clear();
+            floodPoints.clear();
+            flood=true;
+            reply.addVocab(ack);
+        }
+        else 
             RFModule::respond(command,reply);
         
         return true;
