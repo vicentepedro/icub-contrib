@@ -193,7 +193,7 @@ public:
                 }
                 else
                 {
-                    cmd.addString("Flood");
+                    cmd.addString("Flood3D");
                     cmd.addInt(contour.back().x);
                     cmd.addInt(contour.back().y);
                     cmd.addDouble(dist);
