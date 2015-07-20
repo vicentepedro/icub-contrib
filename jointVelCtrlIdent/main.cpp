@@ -432,7 +432,7 @@ int main(int argc, char *argv[])
     if (!yarp.checkNetwork())
     {
         printf("YARP server is unavailable!\n");
-        return -1;
+        return 1;
     }
 
     ResourceFinder rf;

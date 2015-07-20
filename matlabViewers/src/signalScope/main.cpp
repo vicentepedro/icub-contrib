@@ -486,7 +486,7 @@ int main(int argc, char *argv[])
     }    
 
     if (!yarp.checkNetwork())
-        return false;
+        return 1;
 
     GatewayModule mod;
     return mod.runModule(rf);

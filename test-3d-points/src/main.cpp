@@ -327,7 +327,7 @@ int main(int argc,char *argv[])
     if (!yarp.checkNetwork())
     {
         yError("unable to find YARP server!");
-        return -1;
+        return 1;
     }
 
     TestModule mod;
