@@ -1,0 +1,32 @@
+<application>
+<name>show-fingers for icubSim</name>
+
+        <dependencies>
+            <port>/icubSim/cam/left</port>
+            <port>/icubSim/cartesianController/left_arm/state:o</port>
+            <port>/icubSim/cartesianController/right_arm/state:o</port>
+            <port>/iKinGazeCtrl/rpc</port>
+        </dependencies>
+
+        <module>
+            <name>show-fingers</name>
+            <parameters>--robot icubSim --arm left --eye left</parameters>
+            <node>localhost</node>
+        </module>
+        <module>
+            <name>yarpview</name>
+            <parameters>--name /fingers --compact</parameters>
+            <node>localhost</node>
+        </module>
+
+     <connection>
+       <from>/icubSim/cam/left</from>
+       <to>/show-fingers/img:i</to>
+       <protocol>udp</protocol>
+     </connection>
+     <connection>
+       <from>/show-fingers/img:o</from>
+       <to>/fingers</to>
+       <protocol>udp</protocol>
+     </connection>
+</application>
