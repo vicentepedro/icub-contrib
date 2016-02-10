@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (C) 2016 iCub Facility - Istituto Italiano di Tecnologia
  * Author: Vadim Tikhanoff, Ugo Pattacini
  * email:  vadim.tikhanoff@iit.it, ugo.pattacini@iit.it
@@ -17,7 +17,6 @@
 
 #include <memory>
 #include <string>
-#include <sstream>
 #include <deque>
 
 #include <opencv2/opencv.hpp>
@@ -44,7 +43,7 @@ using namespace iCub::iKin;
 /************************************************************************/
 class FingerModule : public RFModule
 {
-protected:    
+protected:
     iCubFinger finger[3];
     int camSel,nEncs;
 
@@ -54,27 +53,27 @@ protected:
     IGazeControl      *igaze;
 
     BufferedPort<ImageOf<PixelRgb> > imgInPort,imgOutPort;
-        
+
 public:
     /************************************************************************/
     bool configure(ResourceFinder &rf)
     {
-        string robot=rf.check("robot",Value("icub")).asString();        
+        string robot=rf.check("robot",Value("icub")).asString();
         string arm=rf.check("arm",Value("left")).asString();
         string eye=rf.check("eye",Value("left")).asString();
-        
+
         if ((arm!="left") && (arm!="right"))
         {
             yError()<<"Invalid arm requested";
             return false;
         }
-        
+
         if ((eye!="left") && (eye!="right"))
         {
             yError()<<"Invalid eye requested";
             return false;
         }
-        
+
         // open drivers
         Property optionArm("(device remote_controlboard)");
         optionArm.put("remote",("/"+robot+"/"+arm+"_arm").c_str());
@@ -85,7 +84,7 @@ public:
             terminate();
             return false;
         }
-        
+
         Property optionCart("(device cartesiancontrollerclient)");
         optionCart.put("remote",("/"+robot+"/cartesianController/"+arm+"_arm").c_str());
         optionCart.put("local","/show-fingers/cartesian");
@@ -95,17 +94,17 @@ public:
             terminate();
             return false;
         }
-        
+
         Property optionGaze("(device gazecontrollerclient)");
         optionGaze.put("remote","/iKinGazeCtrl");
         optionGaze.put("local","/show-fingers/gaze");
-        if (!drvGaze.open(optionGaze))            
+        if (!drvGaze.open(optionGaze))
         {
             yError()<<"Gaze controller not available";
             terminate();
             return false;
         }
-        
+
         IControlLimits *ilim;
         drvArm.view(iencs);
         drvArm.view(ilim);
@@ -116,7 +115,7 @@ public:
         finger[0]=iCubFinger(arm+"_thumb");
         finger[1]=iCubFinger(arm+"_index");
         finger[2]=iCubFinger(arm+"_middle");
-                
+
         deque<IControlLimits*> lim;
         lim.push_back(ilim);
         for (int i=0; i<3; i++)
@@ -147,7 +146,7 @@ public:
         ImageOf<PixelRgb> &imgOut=imgOutPort.prepare();
         imgOut=*imgIn;
 
-        cv::Mat img=cv::cvarrToMat(imgOut.getIplImage());        
+        cv::Mat img=cv::cvarrToMat(imgOut.getIplImage());
 
         Vector xa,oa;
         iarm->getPose(xa,oa);
@@ -169,7 +168,7 @@ public:
             finger[i].getChainJoints(encs,joints);
             finger[i].setAng(CTRL_DEG2RAD*joints);
         }
-        
+
         for (int fng=0; fng<3; fng++)
         {
             deque<cv::Point> point_f;
@@ -205,7 +204,7 @@ public:
 
         if (drvGaze.isValid())
             drvGaze.close();
-                
+
         if (drvCart.isValid())
             drvCart.close();
 
@@ -231,7 +230,7 @@ public:
 
 /************************************************************************/
 int main(int argc, char *argv[])
-{    
+{
     Network yarp;
     if (!yarp.checkNetwork())
     {
@@ -239,10 +238,9 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-    ResourceFinder rf; 
+    ResourceFinder rf;
     rf.configure(argc,argv);
-    
-    FingerModule module;
-    return module.runModule(rf);    
-}
 
+    FingerModule module;
+    return module.runModule(rf);
+}
