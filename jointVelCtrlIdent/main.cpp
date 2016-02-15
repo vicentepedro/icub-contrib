@@ -110,7 +110,7 @@ Windows, Linux
 \author Ugo Pattacini
 */ 
 
-#include <stdio.h>
+#include <cstdio>
 #include <string>
 
 #include <yarp/os/all.h>
@@ -283,6 +283,11 @@ public:
             ipid->setPid(0,pid);
             ipid->setPid(1,pid);
         }
+        else if ((part=="torso") && ((joint==1) || (joint==2)))
+        {
+            ipid->setPid(1,pid);
+            ipid->setPid(2,pid);
+        }
         else
             ipid->setPid(joint,pid1);
     }
@@ -297,6 +302,12 @@ public:
             pwm.resize(2);
             ipid->getOutput(0,&pwm[0]);
             ipid->getOutput(1,&pwm[1]);
+        }
+        else if ((part=="torso") && ((joint==1) || (joint==2)))
+        {
+            pwm.resize(2);
+            ipid->getOutput(1,&pwm[0]);
+            ipid->getOutput(2,&pwm[1]);
         }
         else
             ipid->getOutput(joint,&pwm[0]);
