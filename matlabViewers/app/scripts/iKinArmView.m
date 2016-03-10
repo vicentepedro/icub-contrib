@@ -210,7 +210,7 @@ hg      =UserData{5};
 xd_ml(idx)=get(src,'Value');
 r=xd_ml(4:6)*pi/180;
 n=angle2dcm(r(1),r(2),r(3),'ZYX');
-v=dcm2axis(n);
+v=rotm2axang(n);
 
 if ~any(v(1:3))
     v(1:3)=[1 0 0];
@@ -255,7 +255,7 @@ end
 
 [x,axpoint]=fkin(q);
 H=[axpoint{1} axpoint{2} axpoint{3}];
-v=dcm2axis(H);
+v=rotm2axang(H);
 [r1,r2,r3]=dcm2angle(H,'ZYX');
 
 xd_ml(1:3)=x{end}';
@@ -287,25 +287,6 @@ end
 UserDataFig{3}=xd;
 UserDataFig{4}=xd_ml;
 set(hfig,'UserData',UserDataFig);
-
-
-%--------------------------------------------------------------------------
-function v=dcm2axis(R)
-
-v(1)=R(3,2)-R(2,3);
-v(2)=R(1,3)-R(3,1);
-v(3)=R(2,1)-R(1,2);
-r=norm(v);
-
-if ~r
-    v=zeros(1,4);
-    return;
-end
-
-theta=atan2(0.5*r,0.5*(R(1,1)+R(2,2)+R(3,3)-1));
-
-v=v/r;
-v(4)=theta;
 
 
 %--------------------------------------------------------------------------
