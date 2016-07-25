@@ -172,14 +172,15 @@ public:
         for (int fng=0; fng<3; fng++)
         {
             deque<cv::Point> point_f;
-            for (size_t i=0; i<finger[fng].getN(); i++)
+            for (int i=-1; i<(int)finger[fng].getN(); i++)
             {
                 Vector fc;
-                igaze->get2DPixel(camSel,Ha*finger[fng].getH(i,true).getCol(3),fc);
+                igaze->get2DPixel(camSel,Ha*(i<0?finger[fng].getH0().getCol(3):
+                                                 finger[fng].getH(i,true).getCol(3)),fc);
                 point_f.push_front(cv::Point((int)fc[0],(int)fc[1]));
                 cv::circle(img,point_f.front(),3,cv::Scalar(0,0,255),4);
 
-                if (i>0)
+                if (i>=0)
                 {
                     cv::line(img,point_f.front(),point_f.back(),cv::Scalar(255,255,255),2);
                     point_f.pop_back();
