@@ -47,7 +47,8 @@ protected:
     iCubFinger finger[3];
     int camSel,nEncs;
 
-    PolyDriver         drvArm,drvCart,drvGaze;
+    PolyDriver         drvAnalog,drvArm,drvCart,drvGaze;
+    IAnalogSensor     *ianalog;
     IEncoders         *iencs;
     ICartesianControl *iarm;
     IGazeControl      *igaze;
@@ -61,6 +62,7 @@ public:
         string robot=rf.check("robot",Value("icub")).asString();
         string arm=rf.check("arm",Value("left")).asString();
         string eye=rf.check("eye",Value("left")).asString();
+        bool analog=(rf.check("analog",Value(robot=="icub"?"on":"off")).asString()=="on");
 
         if ((arm!="left") && (arm!="right"))
         {
@@ -75,8 +77,21 @@ public:
         }
 
         // open drivers
+        if (analog)
+        {
+            Property optionAnalog("(device analogsensorclient)");
+            optionAnalog.put("remote","/"+robot+"/"+arm+"_hand/analog:o");
+            optionAnalog.put("local","/show-fingers/analog");
+            if (!drvAnalog.open(optionAnalog))
+            {
+                yError()<<"Analog sensor not available";
+                terminate();
+                return false;
+            }
+        }
+
         Property optionArm("(device remote_controlboard)");
-        optionArm.put("remote",("/"+robot+"/"+arm+"_arm").c_str());
+        optionArm.put("remote","/"+robot+"/"+arm+"_arm");
         optionArm.put("local","/show-fingers/joints");
         if (!drvArm.open(optionArm))
         {
@@ -86,7 +101,7 @@ public:
         }
 
         Property optionCart("(device cartesiancontrollerclient)");
-        optionCart.put("remote",("/"+robot+"/cartesianController/"+arm+"_arm").c_str());
+        optionCart.put("remote","/"+robot+"/cartesianController/"+arm+"_arm");
         optionCart.put("local","/show-fingers/cartesian");
         if (!drvCart.open(optionCart))
         {
@@ -105,6 +120,10 @@ public:
             return false;
         }
 
+        if (analog)
+            drvAnalog.view(ianalog);
+        else
+            ianalog=NULL;
         IControlLimits *ilim;
         drvArm.view(iencs);
         drvArm.view(ilim);
@@ -161,11 +180,17 @@ public:
         cv::Point point_c((int)pc[0],(int)pc[1]);
         cv::circle(img,point_c,4,cv::Scalar(0,255,0),4);
 
-        Vector encs(nEncs),joints;
+        Vector analogs,encs(nEncs),joints;
+        if (ianalog!=NULL)
+            ianalog->read(analogs);
         iencs->getEncoders(encs.data());
+
         for (int i=0; i<3; i++)
         {
-            finger[i].getChainJoints(encs,joints);
+            if (ianalog!=NULL)
+                finger[i].getChainJoints(encs,analogs,joints);
+            else
+                finger[i].getChainJoints(encs,joints);
             finger[i].setAng(CTRL_DEG2RAD*joints);
         }
 
@@ -211,6 +236,9 @@ public:
 
         if (drvArm.isValid())
             drvArm.close();
+
+        if (drvAnalog.isValid())
+            drvAnalog.close();
     }
 
     /************************************************************************/
