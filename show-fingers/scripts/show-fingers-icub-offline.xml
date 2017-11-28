@@ -1,0 +1,56 @@
+<application>
+<name>show-fingers for icub - offline Version</name>
+     <dependencies>
+        <port>/icub/camcalib/left/out</port>
+     </dependencies>
+     <module>
+        <name>show-fingers</name>
+        <parameters>--robot icub --arm left --eye left --offline on</parameters>
+        <node>localhost</node>
+     </module>
+     <module>
+        <name>yarpview</name>
+        <parameters>--name /fingers --compact</parameters>
+        <node>localhost</node>
+     </module>
+     <module>
+        <name>yarpview</name>
+        <parameters>--name /fingers/offsets --compact</parameters>
+        <node>localhost</node>
+     </module>
+     <connection>
+        <from>/icub/camcalib/left/out</from>
+        <to>/show-fingers/img:i</to>
+        <protocol>udp</protocol>
+     </connection>
+     <connection>
+        <from>/icub/camcalib/left/out</from>
+        <to>/show-fingers/img:i</to>
+        <protocol>udp</protocol>
+     </connection>
+     <connection>
+        <from>/icub/head/state:o</from>
+        <to>/show-fingers/head:i</to>
+        <protocol>udp</protocol>
+     </connection>
+     <connection>
+        <from>/icub/left_arm/state:o</from>
+        <to>/show-fingers/left_arm:i</to>
+        <protocol>udp</protocol>
+     </connection>
+     <connection>
+        <from>/icub/torso/state:o</from>
+        <to>/show-fingers/torso:i</to>
+        <protocol>udp</protocol>
+     </connection>
+     <connection>
+        <from>/show-fingers/img:o</from>
+        <to>/fingers</to>
+        <protocol>udp</protocol>
+     </connection>
+     <connection>
+        <from>/show-fingers/imgCorrect:o</from>
+        <to>/fingers/offsets</to>
+        <protocol>udp</protocol>
+     </connection>
+</application>
