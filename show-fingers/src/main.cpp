@@ -200,7 +200,7 @@ public:
             offsetsPort.open("/show-fingers/offsets:i");        
         }
         camSel=(eye=="left")?0:1;
-        eyeKin=new iCubEye(eye);//+"_v2"); // Hard Coded for head v2. //TODO change 
+        eyeKin=new iCubEye(eye+"_v2"); // Hard Coded for head v2. //TODO change 
         armKin= new iCubArm(arm);
         armKin->setAllConstraints(false);
         eyeKin->setAllConstraints(false);
