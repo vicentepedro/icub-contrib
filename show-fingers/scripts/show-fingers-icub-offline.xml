@@ -53,4 +53,9 @@
         <to>/fingers/offsets</to>
         <protocol>udp</protocol>
      </connection>
+    <connection>
+        <from>/hpe/bestOffsets:o</from>
+        <to>/show-fingers/offsets:i</to>
+        <protocol>udp</protocol>
+     </connection>
 </application>

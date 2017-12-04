@@ -77,7 +77,7 @@ public:
         string eye=rf.check("eye",Value("left")).asString();
         bool analog=(rf.check("analog",Value(robot=="icub"?"on":"off")).asString()=="on");
         offline = rf.check("offline",Value("off")).asString()=="on"?true:false;
-        withOffsets=rf.check("offsets",Value(false)).asBool();
+        withOffsets=rf.check("offsets",Value("off")).asString()=="on"?true:false;
 
         if ((arm!="left") && (arm!="right"))
         {
@@ -242,10 +242,11 @@ public:
             return false;
 
         ImageOf<PixelRgb> &imgOut=imgOutPort.prepare();
+        ImageOf<PixelRgb> &imgOut_correct=imgOutPortCorrect.prepare();
         imgOut=*imgIn;
-
+        imgOut_correct=*imgIn;
         cv::Mat img=cv::cvarrToMat(imgOut.getIplImage());
-
+        cv::Mat imgCorr=cv::cvarrToMat(imgOut_correct.getIplImage());
         Vector xa,oa;
         Matrix Ha;
 
@@ -345,6 +346,7 @@ public:
             finger[i].setAng(CTRL_DEG2RAD*joints);
         }
 
+        // Without Offsets
         for (int fng=0; fng<3; fng++)
         {
             deque<cv::Point> point_f;
@@ -370,6 +372,36 @@ public:
             }
         }
 
+        if(withOffsets) 
+        {
+            cv::Point point_ccorr((int)pc_corr[0],(int)pc_corr[1]);
+            cv::circle(imgCorr,point_ccorr,4,cv::Scalar(0,255,0),4);
+            for (int fng=0; fng<3; fng++)
+            {
+                deque<cv::Point> point_f;
+                for (int i=-1; i<(int)finger[fng].getN(); i++)
+                {
+                    Vector fc;
+                    if (offline)
+                        fc = projectPointInEye(encTorso, encHead, Ha_corr*(i<0?finger[fng].getH0().getCol(3):
+                                                     finger[fng].getH(i,true).getCol(3)));
+                    else
+                        igaze->get2DPixel(camSel,Ha_corr*(i<0?finger[fng].getH0().getCol(3):
+                                                     finger[fng].getH(i,true).getCol(3)),fc);
+                    point_f.push_front(cv::Point((int)fc[0],(int)fc[1]));
+                    cv::circle(imgCorr,point_f.front(),3,cv::Scalar(0,0,255),4);
+
+                    if (i>=0)
+                    {
+                        cv::line(imgCorr,point_f.front(),point_f.back(),cv::Scalar(255,255,255),2);
+                        point_f.pop_back();
+                    }
+                    else
+                        cv::line(imgCorr,point_ccorr,point_f.front(),cv::Scalar(255,0,0),2);
+                }
+            }
+            imgOutPortCorrect.writeStrict();
+        }
         imgOutPort.writeStrict();
         return true;
     }
